@@ -27,11 +27,17 @@ def search_movies(request):
 
     movies = []
     for movie in data.get("results", []):
+        poster_path = movie.get("poster_path")
+
+        full_poster_url = None
+        if poster_path:
+            full_poster_url = f"https://image.tmdb.org/t/p/w500{poster_path}"
+
         movies.append({
             "id": movie.get("id"),
             "title": movie.get("title"),
             "overview": movie.get("overview"),
-            "poster_path": movie.get("poster_path"),
+            "poster_url": full_poster_url,
             "release_date": movie.get("release_date"),
             "vote_average": movie.get("vote_average"),
         })
