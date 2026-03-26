@@ -25,4 +25,15 @@ def search_movies(request):
     response = requests.get(url, params=params)
     data = response.json()
 
-    return Response(data)
+    movies = []
+    for movie in data.get("results", []):
+        movies.append({
+            "id": movie.get("id"),
+            "title": movie.get("title"),
+            "overview": movie.get("overview"),
+            "poster_path": movie.get("poster_path"),
+            "release_date": movie.get("release_date"),
+            "vote_average": movie.get("vote_average"),
+        })
+
+    return Response({"results": movies})
