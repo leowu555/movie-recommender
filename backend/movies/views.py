@@ -22,8 +22,22 @@ def search_movies(request):
         "query": query
     }
 
-    response = requests.get(url, params=params)
-    data = response.json()
+    try:
+        response = requests.get(url, params=params)
+
+        if response.status_code != 200:
+            return Response(
+                {"error": "Failed to fetch data from TMDB"},
+                status=500
+            )
+
+        data = response.json()
+
+    except Exception as e:
+        return Response(
+            {"error": "Something went wrong while fetching movies"},
+            status=500
+    )
 
     movies = []
     for movie in data.get("results", []):
