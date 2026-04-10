@@ -1,0 +1,1 @@
+config.lambda_handler.handler
