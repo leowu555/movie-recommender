@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-vrelh-j0n13wu1z%4wyr_-4y)p9=roj88d&&c^jq+yjy^plvf@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["4stl3ctbxyz2fuuatqbyeiwpaa0mgyco.lambda-url.ca-central-1.on.aws",]
 
 
 # Application definition
