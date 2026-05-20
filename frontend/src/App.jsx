@@ -1,5 +1,8 @@
 import { useState } from 'react'
 
+const API_BASE_URL =
+  'https://4stl3ctbxyz2fuuatqbyeiwpaa0mgyco.lambda-url.ca-central-1.on.aws'
+
 function App() {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
@@ -20,9 +23,8 @@ function App() {
     setError('')
 
     try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/movies/search/?query=${encodeURIComponent(trimmed)}`
-      )
+      const url = `${API_BASE_URL}/api/movies/search?query=${encodeURIComponent(trimmed)}`
+      const response = await fetch(url)
 
       const data = await response.json()
 
@@ -32,9 +34,12 @@ function App() {
         return
       }
 
-      setResults(data.results || [])
+      const movies = data.results || []
+      console.log('Search results:', movies)
+      setResults(movies)
     } catch (err) {
-      setError('Could not connect to backend. Is Django running?')
+      console.error('Search request failed:', err)
+      setError('Could not connect to API. Check the Lambda URL and CORS settings.')
       setResults([])
     } finally {
       setLoading(false)
