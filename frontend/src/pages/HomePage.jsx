@@ -1,8 +1,10 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { API_BASE_URL } from '../api'
+import './moviePages.css'
 
 function HomePage() {
+  const navigate = useNavigate()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
@@ -45,59 +47,70 @@ function HomePage() {
   }
 
   return (
-    <main style={{ maxWidth: 700, margin: '40px auto', fontFamily: 'sans-serif' }}>
-      <h1>Movie Search</h1>
+    <div className="page">
+      <h1 className="page-title">Movie Search</h1>
 
-      <form onSubmit={handleSearch} style={{ display: 'flex', gap: 8 }}>
+      <form className="search-form" onSubmit={handleSearch}>
         <input
+          className="search-input"
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search for a movie..."
-          style={{ flex: 1, padding: 8 }}
         />
-        <button type="submit" disabled={loading}>
+        <button className="btn btn-primary" type="submit" disabled={loading}>
           {loading ? 'Searching...' : 'Search'}
         </button>
       </form>
 
-      {error && <p style={{ color: 'crimson' }}>{error}</p>}
+      {error && <p className="error-text">{error}</p>}
 
-      <ul style={{ listStyle: 'none', padding: 0 }}>
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
         {results.map((movie) => (
-          <li
-            key={movie.id}
-            style={{
-              marginTop: 12,
-              padding: 12,
-              border: '1px solid #ddd',
-              borderRadius: 8,
-            }}
-          >
-            {movie.poster_url && (
+          <li key={movie.id} className="movie-card">
+            {movie.poster_url ? (
               <img
+                className="movie-card-poster"
                 src={movie.poster_url}
                 alt={movie.title}
-                style={{ width: 80, float: 'left', marginRight: 12, borderRadius: 4 }}
               />
+            ) : (
+              <div
+                className="movie-card-poster"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '0.75rem',
+                  color: 'var(--text)',
+                }}
+              >
+                No poster
+              </div>
             )}
-            <strong>{movie.title}</strong>
-            {movie.release_date ? ` (${movie.release_date.slice(0, 4)})` : ''}
-            <div style={{ marginTop: 4, fontSize: 14 }}>{movie.overview}</div>
-            <Link
-              to={`/movie/${movie.id}`}
-              style={{
-                display: 'inline-block',
-                marginTop: 8,
-                padding: '6px 12px',
-              }}
-            >
-              View full details
-            </Link>
+            <div className="movie-card-body">
+              <h2 className="movie-card-title">
+                {movie.title}
+                {movie.release_date && (
+                  <span className="movie-card-year">
+                    {' '}
+                    ({movie.release_date.slice(0, 4)})
+                  </span>
+                )}
+              </h2>
+              <p className="movie-card-overview">{movie.overview}</p>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => navigate(`/movie/${movie.id}`)}
+              >
+                View full details
+              </button>
+            </div>
           </li>
         ))}
       </ul>
-    </main>
+    </div>
   )
 }
 

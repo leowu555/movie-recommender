@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { API_BASE_URL } from '../api'
+import './moviePages.css'
 
 function MovieDetailsPage() {
   const { movieId } = useParams()
@@ -48,46 +49,72 @@ function MovieDetailsPage() {
   }, [movieId])
 
   return (
-    <main style={{ maxWidth: 700, margin: '40px auto', fontFamily: 'sans-serif' }}>
-      <Link to="/" style={{ display: 'inline-block', marginBottom: 16 }}>
-        ← Back to search
-      </Link>
+    <div className="page">
+      <div className="details-back">
+        <Link to="/" className="btn btn-secondary">
+          ← Back to search
+        </Link>
+      </div>
 
-      <h1>Movie Details</h1>
+      {loading && (
+        <div className="details-panel details-loading">Loading movie details...</div>
+      )}
 
-      {loading && <p>Loading details...</p>}
-
-      {error && <p style={{ color: 'crimson' }}>{error}</p>}
-
-      {movieDetails && (
-        <div>
-          {movieDetails.poster_url && (
-            <img
-              src={movieDetails.poster_url}
-              alt={movieDetails.title}
-              style={{ maxWidth: 240, display: 'block', marginBottom: 16, borderRadius: 8 }}
-            />
-          )}
-          <h2>{movieDetails.title}</h2>
-          {movieDetails.release_date && (
-            <p>
-              <strong>Release:</strong> {movieDetails.release_date}
-            </p>
-          )}
-          {movieDetails.runtime != null && (
-            <p>
-              <strong>Runtime:</strong> {movieDetails.runtime} min
-            </p>
-          )}
-          {movieDetails.genres?.length > 0 && (
-            <p>
-              <strong>Genres:</strong> {movieDetails.genres.join(', ')}
-            </p>
-          )}
-          <p>{movieDetails.overview}</p>
+      {error && (
+        <div className="details-panel details-loading">
+          <p className="error-text" style={{ margin: 0 }}>
+            {error}
+          </p>
         </div>
       )}
-    </main>
+
+      {movieDetails && (
+        <article className="details-panel">
+          <div className="details-hero">
+            <div className="details-poster-wrap">
+              {movieDetails.poster_url ? (
+                <img
+                  className="details-poster"
+                  src={movieDetails.poster_url}
+                  alt={`${movieDetails.title} poster`}
+                />
+              ) : (
+                <div className="details-poster-placeholder">No poster available</div>
+              )}
+            </div>
+
+            <div className="details-content">
+              <h1 className="details-title">{movieDetails.title}</h1>
+
+              <div className="details-meta">
+                {movieDetails.release_date && (
+                  <span className="details-meta-item">
+                    <strong>Release:</strong> {movieDetails.release_date}
+                  </span>
+                )}
+                {movieDetails.runtime != null && (
+                  <span className="details-meta-item">
+                    <strong>Runtime:</strong> {movieDetails.runtime} min
+                  </span>
+                )}
+              </div>
+
+              {movieDetails.genres?.length > 0 && (
+                <div className="genre-list">
+                  {movieDetails.genres.map((genre) => (
+                    <span key={genre} className="genre-pill">
+                      {genre}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              <p className="details-overview">{movieDetails.overview}</p>
+            </div>
+          </div>
+        </article>
+      )}
+    </div>
   )
 }
 
