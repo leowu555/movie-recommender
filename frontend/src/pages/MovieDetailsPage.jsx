@@ -57,18 +57,24 @@ function MovieDetailsPage() {
       </div>
 
       {loading && (
-        <div className="details-panel details-loading">Loading movie details...</div>
+        <div className="details-panel details-loading">
+          <div className="spinner" aria-hidden="true" />
+          <p>Loading movie details...</p>
+        </div>
       )}
 
-      {error && (
+      {error && !loading && (
         <div className="details-panel details-loading">
           <p className="error-text" style={{ margin: 0 }}>
             {error}
           </p>
+          <Link to="/" className="btn btn-ghost">
+            Try another search
+          </Link>
         </div>
       )}
 
-      {movieDetails && (
+      {movieDetails && !loading && (
         <article className="details-panel">
           <div className="details-hero">
             <div className="details-poster-wrap">
@@ -88,13 +94,13 @@ function MovieDetailsPage() {
 
               <div className="details-meta">
                 {movieDetails.release_date && (
-                  <span className="details-meta-item">
-                    <strong>Release:</strong> {movieDetails.release_date}
+                  <span className="meta-chip">
+                    <strong>Released</strong> {movieDetails.release_date}
                   </span>
                 )}
-                {movieDetails.runtime != null && (
-                  <span className="details-meta-item">
-                    <strong>Runtime:</strong> {movieDetails.runtime} min
+                {movieDetails.runtime != null && movieDetails.runtime > 0 && (
+                  <span className="meta-chip">
+                    <strong>Runtime</strong> {movieDetails.runtime} min
                   </span>
                 )}
               </div>
@@ -109,7 +115,10 @@ function MovieDetailsPage() {
                 </div>
               )}
 
-              <p className="details-overview">{movieDetails.overview}</p>
+              <p className="details-overview-label">Synopsis</p>
+              <p className="details-overview">
+                {movieDetails.overview || 'No overview available.'}
+              </p>
             </div>
           </div>
         </article>
