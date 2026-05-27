@@ -1,26 +1,41 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
 import { API_BASE_URL } from '../api'
+import MovieCard from '../components/MovieCard'
+import SkeletonCard from '../components/SkeletonCard'
+import { addRecentSearch, getRecentSearches } from '../utils/storage'
 import './moviePages.css'
 
+const POPULAR_SEARCHES = ['Inception', 'Parasite', 'The Dark Knight', 'Barbie', 'Interstellar']
+
+const SORT_OPTIONS = [
+  { value: 'relevance', label: 'Relevance' },
+  { value: 'rating', label: 'Highest rated' },
+  { value: 'newest', label: 'Newest first' },
+  { value: 'title', label: 'Title A–Z' },
+]
+
 function HomePage() {
-  const navigate = useNavigate()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [hasSearched, setHasSearched] = useState(false)
+  const [sortBy, setSortBy] = useState('relevance')
+  const [recentSearches, setRecentSearches] = useState([])
 
-  async function handleSearch(event) {
-    event.preventDefault()
+  useEffect(() => {
+    setRecentSearches(getRecentSearches())
+  }, [])
 
-    const trimmed = query.trim()
+  async function runSearch(searchTerm) {
+    const trimmed = searchTerm.trim()
     if (!trimmed) {
       setError('Please enter a movie title.')
       setResults([])
       return
     }
 
+    setQuery(trimmed)
     setLoading(true)
     setError('')
     setHasSearched(true)
@@ -39,6 +54,8 @@ function HomePage() {
       const movies = data.results || []
       console.log('Search results:', movies)
       setResults(movies)
+      addRecentSearch(trimmed)
+      setRecentSearches(getRecentSearches())
     } catch (err) {
       console.error('Search request failed:', err)
       setError('Could not connect to API. Check the Lambda URL and CORS settings.')
@@ -48,14 +65,33 @@ function HomePage() {
     }
   }
 
+  function handleSearch(event) {
+    event.preventDefault()
+    runSearch(query)
+  }
+
+  const sortedResults = useMemo(() => {
+    const list = [...results]
+    switch (sortBy) {
+      case 'rating':
+        return list.sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0))
+      case 'newest':
+        return list.sort((a, b) => (b.release_date || '').localeCompare(a.release_date || ''))
+      case 'title':
+        return list.sort((a, b) => a.title.localeCompare(b.title))
+      default:
+        return list
+    }
+  }, [results, sortBy])
+
   return (
     <div className="page">
       <section className="hero">
         <p className="hero-eyebrow">Discover films</p>
         <h1 className="hero-title">Find your next favorite movie</h1>
         <p className="hero-subtitle">
-          Search thousands of titles with real-time data from TMDB. Click any result
-          for the full story.
+          Search thousands of titles with real-time data from TMDB. Save films to your
+          watchlist and explore full details in one click.
         </p>
 
         <form className="search-form" onSubmit={handleSearch}>
@@ -65,20 +101,81 @@ function HomePage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Try Inception, Parasite, Barbie..."
+            aria-label="Search movies"
           />
           <button className="btn btn-primary" type="submit" disabled={loading}>
             {loading ? 'Searching...' : 'Search'}
           </button>
         </form>
 
+        <div className="chip-groups">
+          <div className="chip-group">
+            <span className="chip-label">Popular</span>
+            <div className="chips">
+              {POPULAR_SEARCHES.map((term) => (
+                <button
+                  key={term}
+                  type="button"
+                  className="chip"
+                  onClick={() => runSearch(term)}
+                  disabled={loading}
+                >
+                  {term}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {recentSearches.length > 0 && (
+            <div className="chip-group">
+              <span className="chip-label">Recent</span>
+              <div className="chips">
+                {recentSearches.map((term) => (
+                  <button
+                    key={term}
+                    type="button"
+                    className="chip chip-muted"
+                    onClick={() => runSearch(term)}
+                    disabled={loading}
+                  >
+                    {term}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
         {error && <p className="error-text">{error}</p>}
       </section>
 
+      {loading && (
+        <ul className="results-grid">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </ul>
+      )}
+
       {hasSearched && !loading && results.length > 0 && (
-        <div className="results-header">
+        <div className="results-toolbar">
           <span className="results-count">
             {results.length} result{results.length !== 1 ? 's' : ''}
           </span>
+          <label className="sort-control">
+            <span className="sort-label">Sort by</span>
+            <select
+              className="sort-select"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              {SORT_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
       )}
 
@@ -89,47 +186,13 @@ function HomePage() {
         </div>
       )}
 
-      <ul className="results-grid">
-        {results.map((movie) => (
-          <li key={movie.id} className="movie-card">
-            <div className="movie-card-poster-wrap">
-              {movie.poster_url ? (
-                <img
-                  className="movie-card-poster"
-                  src={movie.poster_url}
-                  alt={movie.title}
-                />
-              ) : (
-                <div className="movie-card-poster-placeholder">No poster</div>
-              )}
-              {movie.vote_average > 0 && (
-                <span className="movie-card-rating">
-                  ★ {movie.vote_average.toFixed(1)}
-                </span>
-              )}
-            </div>
-            <div className="movie-card-body">
-              <h2 className="movie-card-title">
-                {movie.title}
-                {movie.release_date && (
-                  <span className="movie-card-year">
-                    {' '}
-                    ({movie.release_date.slice(0, 4)})
-                  </span>
-                )}
-              </h2>
-              <p className="movie-card-overview">{movie.overview}</p>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => navigate(`/movie/${movie.id}`)}
-              >
-                View full details
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
+      {!loading && sortedResults.length > 0 && (
+        <ul className="results-grid">
+          {sortedResults.map((movie) => (
+            <MovieCard key={movie.id} movie={movie} />
+          ))}
+        </ul>
+      )}
     </div>
   )
 }

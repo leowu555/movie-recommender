@@ -32,21 +32,48 @@
   font-size: 1.35rem;
 }
 
-.app-header-link {
+.app-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.app-nav-link {
+  position: relative;
   color: var(--app-text-muted);
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 500;
-  padding: 0.4rem 0.85rem;
+  padding: 0.45rem 0.9rem;
   border-radius: 8px;
-  border: 1px solid var(--app-border);
+  border: 1px solid transparent;
   transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
 
-.app-header-link:hover {
+.app-nav-link:hover {
   color: var(--app-text-heading);
-  border-color: var(--app-accent);
   background: var(--app-accent-dim);
+}
+
+.app-nav-link-active {
+  color: var(--app-text-heading);
+  border-color: var(--app-border);
+  background: var(--app-surface);
+}
+
+.nav-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  margin-left: 0.35rem;
+  padding: 0 0.3rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #0a0c14;
+  background: var(--app-accent);
+  border-radius: 999px;
 }
 
 .app-main {

@@ -207,8 +207,320 @@
 
 @media (min-width: 960px) {
   .results-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
+}
+
+/* —— Chips (popular / recent) —— */
+.chip-groups {
+  max-width: 560px;
+  margin: 1.25rem auto 0;
+  text-align: left;
+}
+
+.chip-group {
+  margin-bottom: 0.75rem;
+}
+
+.chip-group:last-child {
+  margin-bottom: 0;
+}
+
+.chip-label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--app-text-muted);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chip {
+  padding: 0.35rem 0.75rem;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--app-text-heading);
+  background: var(--app-bg-elevated);
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+}
+
+.chip:hover:not(:disabled) {
+  border-color: var(--app-accent);
+  background: var(--app-accent-dim);
+  transform: translateY(-1px);
+}
+
+.chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.chip-muted {
+  color: var(--app-text);
+}
+
+/* —— Results toolbar —— */
+.results-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 2rem 0 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.sort-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sort-label {
+  font-size: 0.85rem;
+  color: var(--app-text-muted);
+}
+
+.sort-select {
+  padding: 0.4rem 0.65rem;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--app-text-heading);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.sort-select:focus {
+  outline: 2px solid var(--app-accent-dim);
+  border-color: var(--app-accent);
+}
+
+/* —— Skeleton loading —— */
+.movie-card-skeleton {
+  pointer-events: none;
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--app-bg-elevated) 25%,
+    rgba(255, 255, 255, 0.06) 50%,
+    var(--app-bg-elevated) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-poster {
+  aspect-ratio: 2 / 3;
+  width: 100%;
+  border-radius: 0;
+}
+
+.skeleton-title {
+  height: 1.25rem;
+  width: 70%;
+  margin-bottom: 0.5rem;
+}
+
+.skeleton-line {
+  height: 0.75rem;
+  width: 100%;
+  margin-bottom: 0.4rem;
+}
+
+.skeleton-line.short {
+  width: 60%;
+}
+
+.skeleton-btn {
+  height: 2.25rem;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+/* —— Page intro (watchlist) —— */
+.page-intro {
+  margin-bottom: 2rem;
+}
+
+.page-intro-text {
+  margin: 0.5rem 0 0;
+  max-width: 520px;
+  color: var(--app-text-muted);
+  line-height: 1.55;
+}
+
+/* —— Watchlist —— */
+.watchlist-grid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.watchlist-item {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  background: var(--app-surface);
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+.watchlist-item:hover {
+  border-color: rgba(232, 185, 35, 0.3);
+}
+
+.watchlist-item-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.65rem 1rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+
+.watchlist-poster {
+  width: 48px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.watchlist-poster-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--app-bg-elevated);
+  color: var(--app-text-muted);
+}
+
+.watchlist-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.watchlist-info strong {
+  color: var(--app-text-heading);
+}
+
+.watchlist-year {
+  font-size: 0.85rem;
+  color: var(--app-text-muted);
+}
+
+.watchlist-remove {
+  width: 2.5rem;
+  border: none;
+  border-left: 1px solid var(--app-border);
+  background: transparent;
+  color: var(--app-text-muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.watchlist-remove:hover {
+  background: rgba(248, 113, 113, 0.15);
+  color: var(--app-danger);
+}
+
+/* —— Details enhancements —— */
+.page-details {
+  position: relative;
+}
+
+.details-backdrop {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  max-width: 1200px;
+  height: 320px;
+  background-size: cover;
+  background-position: center top;
+  opacity: 0.2;
+  filter: blur(24px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.details-panel-animated {
+  position: relative;
+  z-index: 1;
+  animation: fadeUp 0.45s ease-out;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.details-tagline {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--app-accent);
+  line-height: 1.4;
+}
+
+.meta-chip-accent {
+  border-color: rgba(232, 185, 35, 0.35);
+  background: var(--app-accent-dim);
+}
+
+.details-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.copy-feedback {
+  margin: -0.5rem 0 1rem;
+  font-size: 0.85rem;
+  color: var(--app-accent);
 }
 
 .movie-card {

@@ -56,9 +56,11 @@ class MoviesAPITests(TestCase):
         tmdb_payload = {
             "id": 27205,
             "title": "Inception",
+            "tagline": "Your mind is the scene of the crime.",
             "overview": "A mind-bending thriller.",
             "release_date": "2010-07-16",
             "runtime": 148,
+            "vote_average": 8.4,
             "poster_path": "/poster.jpg",
             "genres": [{"id": 28, "name": "Action"}, {"id": 878, "name": "Sci-Fi"}],
         }
@@ -74,9 +76,11 @@ class MoviesAPITests(TestCase):
             {
                 "id": 27205,
                 "title": "Inception",
+                "tagline": "Your mind is the scene of the crime.",
                 "overview": "A mind-bending thriller.",
                 "release_date": "2010-07-16",
                 "runtime": 148,
+                "vote_average": 8.4,
                 "poster_url": "https://image.tmdb.org/t/p/w500/poster.jpg",
                 "genres": ["Action", "Sci-Fi"],
             },

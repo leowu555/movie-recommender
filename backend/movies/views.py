@@ -94,9 +94,11 @@ def get_movie_details(request, movie_id):
     return Response({
         "id": movie.get("id"),
         "title": movie.get("title"),
+        "tagline": movie.get("tagline"),
         "overview": movie.get("overview"),
         "release_date": movie.get("release_date"),
         "runtime": movie.get("runtime"),
+        "vote_average": movie.get("vote_average"),
         "poster_url": poster_url,
         "genres": genres,
     })
