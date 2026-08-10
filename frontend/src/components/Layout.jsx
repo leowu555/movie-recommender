@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { getWatchlist } from '../utils/storage'
+import Toast from './Toast'
 import './Layout.css'
 
 function Layout({ children }) {
@@ -46,8 +47,24 @@ function Layout({ children }) {
       <main className="app-main">{children}</main>
 
       <footer className="app-footer">
-        <p>Powered by TMDB · Built with React & Django</p>
+        <div className="app-footer-inner">
+          <p className="app-footer-tagline">Discover · Save · Explore</p>
+          <p>Powered by TMDB · React & Django on AWS Lambda</p>
+          <div className="app-footer-links">
+            <Link to="/">Search</Link>
+            <Link to="/watchlist">Watchlist</Link>
+            <a
+              href="https://www.themoviedb.org/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              TMDB ↗
+            </a>
+          </div>
+        </div>
       </footer>
+
+      <Toast />
     </div>
   )
 }

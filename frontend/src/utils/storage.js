@@ -61,3 +61,9 @@ export function removeFromWatchlist(movieId) {
   window.dispatchEvent(new Event('watchlist-updated'))
   return updated
 }
+
+export function clearWatchlist() {
+  localStorage.setItem(WATCHLIST_KEY, JSON.stringify([]))
+  window.dispatchEvent(new Event('watchlist-updated'))
+  return []
+}

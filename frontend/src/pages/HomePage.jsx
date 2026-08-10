@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { API_BASE_URL } from '../api'
 import MovieCard from '../components/MovieCard'
 import SkeletonCard from '../components/SkeletonCard'
+import { usePageTitle } from '../hooks/usePageTitle'
 import { addRecentSearch, getRecentSearches } from '../utils/storage'
 import './moviePages.css'
 
@@ -14,7 +16,14 @@ const SORT_OPTIONS = [
   { value: 'title', label: 'Title A–Z' },
 ]
 
+const FEATURES = [
+  { icon: '🔍', title: 'Live search', text: 'Real-time results from TMDB via your AWS API' },
+  { icon: '🍿', title: 'Watchlist', text: 'Save movies to watch later from any details page' },
+  { icon: '⭐', title: 'Ratings & details', text: 'Posters, runtime, genres, and scores in one view' },
+]
+
 function HomePage() {
+  const [searchParams, setSearchParams] = useSearchParams()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
@@ -23,11 +32,21 @@ function HomePage() {
   const [sortBy, setSortBy] = useState('relevance')
   const [recentSearches, setRecentSearches] = useState([])
 
+  usePageTitle(hasSearched && query ? `Search: ${query}` : null)
+
   useEffect(() => {
     setRecentSearches(getRecentSearches())
   }, [])
 
-  async function runSearch(searchTerm) {
+  useEffect(() => {
+    const q = searchParams.get('q')
+    if (q && q.trim()) {
+      runSearch(q, false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  async function runSearch(searchTerm, updateUrl = true) {
     const trimmed = searchTerm.trim()
     if (!trimmed) {
       setError('Please enter a movie title.')
@@ -39,6 +58,10 @@ function HomePage() {
     setLoading(true)
     setError('')
     setHasSearched(true)
+
+    if (updateUrl) {
+      setSearchParams({ q: trimmed }, { replace: true })
+    }
 
     try {
       const url = `${API_BASE_URL}/api/movies/search?query=${encodeURIComponent(trimmed)}`
@@ -52,13 +75,18 @@ function HomePage() {
       }
 
       const movies = data.results || []
-      console.log('Search results:', movies)
       setResults(movies)
       addRecentSearch(trimmed)
       setRecentSearches(getRecentSearches())
     } catch (err) {
       console.error('Search request failed:', err)
-      setError('Could not connect to API. Check the Lambda URL and CORS settings.')
+      const hint =
+        window.location.origin.includes('127.0.0.1')
+          ? ' Try opening http://localhost:5173 instead of 127.0.0.1.'
+          : ''
+      setError(
+        `Could not connect to API.${hint} Open DevTools → Console for details. (${err.message || 'network error'})`
+      )
       setResults([])
     } finally {
       setLoading(false)
@@ -68,6 +96,14 @@ function HomePage() {
   function handleSearch(event) {
     event.preventDefault()
     runSearch(query)
+  }
+
+  function handleClear() {
+    setQuery('')
+    setResults([])
+    setError('')
+    setHasSearched(false)
+    setSearchParams({}, { replace: true })
   }
 
   const sortedResults = useMemo(() => {
@@ -95,14 +131,26 @@ function HomePage() {
         </p>
 
         <form className="search-form" onSubmit={handleSearch}>
-          <input
-            className="search-input"
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Try Inception, Parasite, Barbie..."
-            aria-label="Search movies"
-          />
+          <div className="search-input-wrap">
+            <input
+              className="search-input"
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Try Inception, Parasite, Barbie..."
+              aria-label="Search movies"
+            />
+            {query && (
+              <button
+                type="button"
+                className="search-clear"
+                onClick={handleClear}
+                aria-label="Clear search"
+              >
+                ×
+              </button>
+            )}
+          </div>
           <button className="btn btn-primary" type="submit" disabled={loading}>
             {loading ? 'Searching...' : 'Search'}
           </button>
@@ -149,9 +197,23 @@ function HomePage() {
         {error && <p className="error-text">{error}</p>}
       </section>
 
+      {!hasSearched && !loading && (
+        <section className="features-section">
+          {FEATURES.map((f) => (
+            <div key={f.title} className="feature-card">
+              <span className="feature-icon" aria-hidden="true">
+                {f.icon}
+              </span>
+              <h3 className="feature-title">{f.title}</h3>
+              <p className="feature-text">{f.text}</p>
+            </div>
+          ))}
+        </section>
+      )}
+
       {loading && (
         <ul className="results-grid">
-          {Array.from({ length: 4 }).map((_, i) => (
+          {Array.from({ length: 6 }).map((_, i) => (
             <SkeletonCard key={i} />
           ))}
         </ul>
@@ -160,7 +222,7 @@ function HomePage() {
       {hasSearched && !loading && results.length > 0 && (
         <div className="results-toolbar">
           <span className="results-count">
-            {results.length} result{results.length !== 1 ? 's' : ''}
+            {results.length} result{results.length !== 1 ? 's' : ''} for &ldquo;{query}&rdquo;
           </span>
           <label className="sort-control">
             <span className="sort-label">Sort by</span>
@@ -182,14 +244,15 @@ function HomePage() {
       {hasSearched && !loading && results.length === 0 && !error && (
         <div className="empty-state">
           <div className="empty-state-icon">🔍</div>
-          <p>No movies found. Try a different search term.</p>
+          <p>No movies found for &ldquo;{query}&rdquo;.</p>
+          <p className="empty-state-hint">Try a shorter title or check spelling.</p>
         </div>
       )}
 
       {!loading && sortedResults.length > 0 && (
         <ul className="results-grid">
-          {sortedResults.map((movie) => (
-            <MovieCard key={movie.id} movie={movie} />
+          {sortedResults.map((movie, index) => (
+            <MovieCard key={movie.id} movie={movie} index={index} />
           ))}
         </ul>
       )}

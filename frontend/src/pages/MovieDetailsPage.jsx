@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { API_BASE_URL } from '../api'
+import { usePageTitle } from '../hooks/usePageTitle'
+import { formatRuntime } from '../utils/format'
 import { isInWatchlist, toggleWatchlist } from '../utils/storage'
+import { showToast } from '../utils/toast'
 import './moviePages.css'
 
 function MovieDetailsPage() {
@@ -10,7 +13,8 @@ function MovieDetailsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [inWatchlist, setInWatchlist] = useState(false)
-  const [copyFeedback, setCopyFeedback] = useState('')
+
+  usePageTitle(movieDetails?.title)
 
   useEffect(() => {
     async function fetchDetails() {
@@ -37,7 +41,6 @@ function MovieDetailsPage() {
           return
         }
 
-        console.log('Movie details:', data)
         setMovieDetails(data)
         setInWatchlist(isInWatchlist(data.id))
       } catch (err) {
@@ -53,19 +56,24 @@ function MovieDetailsPage() {
 
   function handleWatchlistToggle() {
     if (!movieDetails) return
+    const wasInList = inWatchlist
     toggleWatchlist(movieDetails)
     setInWatchlist(isInWatchlist(movieDetails.id))
+    showToast(
+      wasInList ? `Removed "${movieDetails.title}" from watchlist` : `Added "${movieDetails.title}" to watchlist`
+    )
   }
 
   async function handleCopyLink() {
     try {
       await navigator.clipboard.writeText(window.location.href)
-      setCopyFeedback('Link copied!')
-      setTimeout(() => setCopyFeedback(''), 2000)
+      showToast('Link copied to clipboard')
     } catch {
-      setCopyFeedback('Could not copy')
+      showToast('Could not copy link', 'error')
     }
   }
+
+  const runtimeLabel = movieDetails ? formatRuntime(movieDetails.runtime) : null
 
   const backdropStyle =
     movieDetails?.poster_url
@@ -118,7 +126,7 @@ function MovieDetailsPage() {
 
               <div className="details-content">
                 {movieDetails.tagline && (
-                  <p className="details-tagline">"{movieDetails.tagline}"</p>
+                  <p className="details-tagline">&ldquo;{movieDetails.tagline}&rdquo;</p>
                 )}
 
                 <h1 className="details-title">{movieDetails.title}</h1>
@@ -134,9 +142,9 @@ function MovieDetailsPage() {
                       <strong>Released</strong> {movieDetails.release_date}
                     </span>
                   )}
-                  {movieDetails.runtime != null && movieDetails.runtime > 0 && (
+                  {runtimeLabel && (
                     <span className="meta-chip">
-                      <strong>Runtime</strong> {movieDetails.runtime} min
+                      <strong>Runtime</strong> {runtimeLabel}
                     </span>
                   )}
                 </div>
@@ -171,7 +179,6 @@ function MovieDetailsPage() {
                     View on TMDB ↗
                   </a>
                 </div>
-                {copyFeedback && <p className="copy-feedback">{copyFeedback}</p>}
 
                 <p className="details-overview-label">Synopsis</p>
                 <p className="details-overview">

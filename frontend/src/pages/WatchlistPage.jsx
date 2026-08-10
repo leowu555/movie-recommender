@@ -1,35 +1,56 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { getWatchlist, removeFromWatchlist } from '../utils/storage'
+import { usePageTitle } from '../hooks/usePageTitle'
+import { clearWatchlist, getWatchlist, removeFromWatchlist } from '../utils/storage'
+import { showToast } from '../utils/toast'
 import './moviePages.css'
 
 function WatchlistPage() {
   const navigate = useNavigate()
   const [items, setItems] = useState([])
 
+  usePageTitle('Watchlist')
+
   useEffect(() => {
     setItems(getWatchlist())
   }, [])
 
-  function handleRemove(id) {
+  function handleRemove(id, title) {
     setItems(removeFromWatchlist(id))
+    showToast(`Removed "${title}" from watchlist`)
+  }
+
+  function handleClearAll() {
+    if (!window.confirm('Clear your entire watchlist?')) return
+    setItems(clearWatchlist())
+    showToast('Watchlist cleared')
   }
 
   return (
     <div className="page">
-      <section className="page-intro">
-        <h1 className="page-title">My Watchlist</h1>
-        <p className="page-intro-text">
-          Movies you saved to watch later. Stored on this device until you add accounts
-          and a database.
-        </p>
+      <section className="page-intro page-intro-row">
+        <div>
+          <h1 className="page-title">My Watchlist</h1>
+          <p className="page-intro-text">
+            Movies you saved to watch later. Stored on this device until accounts and
+            PostgreSQL are added.
+          </p>
+        </div>
+        {items.length > 0 && (
+          <button type="button" className="btn btn-secondary" onClick={handleClearAll}>
+            Clear all
+          </button>
+        )}
       </section>
 
       {items.length === 0 ? (
         <div className="empty-state">
           <div className="empty-state-icon">🍿</div>
           <p>Your watchlist is empty.</p>
-          <Link to="/" className="btn btn-primary" style={{ marginTop: '1rem' }}>
+          <p className="empty-state-hint">
+            Open any movie and tap &ldquo;Add to watchlist&rdquo;.
+          </p>
+          <Link to="/" className="btn btn-primary empty-state-btn">
             Search movies
           </Link>
         </div>
@@ -43,7 +64,12 @@ function WatchlistPage() {
                 onClick={() => navigate(`/movie/${movie.id}`)}
               >
                 {movie.poster_url ? (
-                  <img src={movie.poster_url} alt="" className="watchlist-poster" />
+                  <img
+                    src={movie.poster_url}
+                    alt=""
+                    className="watchlist-poster"
+                    loading="lazy"
+                  />
                 ) : (
                   <div className="watchlist-poster watchlist-poster-empty">?</div>
                 )}
@@ -59,7 +85,7 @@ function WatchlistPage() {
               <button
                 type="button"
                 className="watchlist-remove"
-                onClick={() => handleRemove(movie.id)}
+                onClick={() => handleRemove(movie.id, movie.title)}
                 aria-label={`Remove ${movie.title} from watchlist`}
               >
                 ×
