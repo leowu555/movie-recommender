@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import { getWatchlist } from '../utils/storage'
 import Toast from './Toast'
 import './Layout.css'
 
 function Layout({ children }) {
   const location = useLocation()
+  const { isAuthenticated, user } = useAuth()
   const [watchlistCount, setWatchlistCount] = useState(() => getWatchlist().length)
 
   useEffect(() => {
@@ -41,6 +43,20 @@ function Layout({ children }) {
               <span className="nav-badge">{watchlistCount}</span>
             )}
           </Link>
+          {isAuthenticated && (
+            <Link to="/recommendations" className={navLinkClass('/recommendations')}>
+              For You
+            </Link>
+          )}
+          {isAuthenticated ? (
+            <Link to="/profile" className={navLinkClass('/profile')}>
+              {user?.username || 'Profile'}
+            </Link>
+          ) : (
+            <Link to="/login" className={navLinkClass('/login')}>
+              Log in
+            </Link>
+          )}
         </nav>
       </header>
 
@@ -48,16 +64,13 @@ function Layout({ children }) {
 
       <footer className="app-footer">
         <div className="app-footer-inner">
-          <p className="app-footer-tagline">Discover · Save · Explore</p>
-          <p>Powered by TMDB · React & Django on AWS Lambda</p>
+          <p className="app-footer-tagline">Discover · Rate · Recommend</p>
+          <p>Django · React · PostgreSQL · scikit-learn · TMDB · AWS Lambda</p>
           <div className="app-footer-links">
             <Link to="/">Search</Link>
             <Link to="/watchlist">Watchlist</Link>
-            <a
-              href="https://www.themoviedb.org/"
-              target="_blank"
-              rel="noreferrer"
-            >
+            <Link to="/recommendations">For You</Link>
+            <a href="https://www.themoviedb.org/" target="_blank" rel="noreferrer">
               TMDB ↗
             </a>
           </div>

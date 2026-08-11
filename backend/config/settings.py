@@ -26,7 +26,11 @@ SECRET_KEY = 'django-insecure-vrelh-j0n13wu1z%4wyr_-4y)p9=roj88d&&c^jq+yjy^plvf@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["4stl3ctbxyz2fuuatqbyeiwpaa0mgyco.lambda-url.ca-central-1.on.aws",]
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    "4stl3ctbxyz2fuuatqbyeiwpaa0mgyco.lambda-url.ca-central-1.on.aws",
+]
 
 
 # Application definition
@@ -41,6 +45,7 @@ INSTALLED_APPS = [
 
     'corsheaders',
     'rest_framework',
+    'rest_framework.authtoken',
     'accounts',
     'movies',
     'ratings',
@@ -84,8 +89,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME', 'movie_recommender'),
+        'USER': os.getenv('DB_USER', os.getenv('USER', '')),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 
@@ -134,3 +143,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5175",
     "http://127.0.0.1:5175",
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+}

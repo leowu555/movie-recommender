@@ -927,3 +927,101 @@
     transform: rotate(360deg);
   }
 }
+
+.auth-page {
+  display: flex;
+  justify-content: center;
+  padding-top: 2rem;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 1.75rem;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-lg);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-card);
+  text-align: left;
+}
+
+.auth-label {
+  display: block;
+  margin: 0.85rem 0;
+  font-size: 0.85rem;
+  color: var(--app-text-muted);
+}
+
+.auth-input {
+  display: block;
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--app-bg-elevated);
+  color: var(--app-text-heading);
+  font: inherit;
+}
+
+.auth-switch {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+.auth-switch a {
+  color: var(--app-accent);
+}
+
+.rating-box {
+  margin: 0 0 1.25rem;
+}
+
+.star-row {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.star-btn {
+  border: none;
+  background: transparent;
+  color: #4b5563;
+  font-size: 1.6rem;
+  cursor: pointer;
+  padding: 0 0.1rem;
+}
+
+.star-btn-active,
+.star-btn:hover {
+  color: var(--app-accent);
+}
+
+.my-score-label {
+  margin-left: 0.5rem;
+  color: var(--app-text-muted);
+  font-size: 0.9rem;
+}
+
+.section-heading {
+  margin: 1.5rem 0 1rem;
+  color: var(--app-text-heading);
+}
+
+.profile-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.method-badge {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: var(--app-accent-dim);
+  border: 1px solid rgba(232, 185, 35, 0.25);
+  color: var(--app-accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+}

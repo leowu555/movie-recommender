@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { API_BASE_URL } from '../api'
+import { API_BASE_URL, authHeaders } from '../api'
+import { useAuth } from '../context/AuthContext'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { formatRuntime } from '../utils/format'
 import { isInWatchlist, toggleWatchlist } from '../utils/storage'
@@ -9,10 +10,13 @@ import './moviePages.css'
 
 function MovieDetailsPage() {
   const { movieId } = useParams()
+  const { token, isAuthenticated } = useAuth()
   const [movieDetails, setMovieDetails] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [inWatchlist, setInWatchlist] = useState(false)
+  const [myScore, setMyScore] = useState(0)
+  const [ratingSaving, setRatingSaving] = useState(false)
 
   usePageTitle(movieDetails?.title)
 
@@ -54,14 +58,60 @@ function MovieDetailsPage() {
     fetchDetails()
   }, [movieId])
 
+  useEffect(() => {
+    async function loadMyRating() {
+      if (!token || !movieId) {
+        setMyScore(0)
+        return
+      }
+      const res = await fetch(`${API_BASE_URL}/api/ratings/${movieId}/`, {
+        headers: authHeaders(token),
+      })
+      if (!res.ok) return
+      const data = await res.json()
+      setMyScore(data.rated ? data.score : 0)
+    }
+    loadMyRating()
+  }, [token, movieId])
+
   function handleWatchlistToggle() {
     if (!movieDetails) return
     const wasInList = inWatchlist
     toggleWatchlist(movieDetails)
     setInWatchlist(isInWatchlist(movieDetails.id))
     showToast(
-      wasInList ? `Removed "${movieDetails.title}" from watchlist` : `Added "${movieDetails.title}" to watchlist`
+      wasInList
+        ? `Removed "${movieDetails.title}" from watchlist`
+        : `Added "${movieDetails.title}" to watchlist`
     )
+  }
+
+  async function handleRate(score) {
+    if (!isAuthenticated) {
+      showToast('Log in to rate movies', 'error')
+      return
+    }
+    if (!movieDetails) return
+    setRatingSaving(true)
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/ratings/`, {
+        method: 'POST',
+        headers: authHeaders(token),
+        body: JSON.stringify({
+          movie_id: movieDetails.id,
+          title: movieDetails.title,
+          poster_url: movieDetails.poster_url,
+          score,
+        }),
+      })
+      if (!res.ok) throw new Error('Failed to save rating')
+      setMyScore(score)
+      showToast(`Rated "${movieDetails.title}" ${score}/5`)
+    } catch {
+      showToast('Could not save rating', 'error')
+    } finally {
+      setRatingSaving(false)
+    }
   }
 
   async function handleCopyLink() {
@@ -74,11 +124,9 @@ function MovieDetailsPage() {
   }
 
   const runtimeLabel = movieDetails ? formatRuntime(movieDetails.runtime) : null
-
-  const backdropStyle =
-    movieDetails?.poster_url
-      ? { backgroundImage: `url(${movieDetails.poster_url})` }
-      : undefined
+  const backdropStyle = movieDetails?.poster_url
+    ? { backgroundImage: `url(${movieDetails.poster_url})` }
+    : undefined
 
   return (
     <div className="page page-details">
@@ -158,6 +206,32 @@ function MovieDetailsPage() {
                     ))}
                   </div>
                 )}
+
+                <div className="rating-box">
+                  <p className="details-overview-label">Your rating</p>
+                  {isAuthenticated ? (
+                    <div className="star-row">
+                      {[1, 2, 3, 4, 5].map((score) => (
+                        <button
+                          key={score}
+                          type="button"
+                          className={`star-btn ${myScore >= score ? 'star-btn-active' : ''}`}
+                          onClick={() => handleRate(score)}
+                          disabled={ratingSaving}
+                          aria-label={`Rate ${score} stars`}
+                        >
+                          ★
+                        </button>
+                      ))}
+                      {myScore > 0 && <span className="my-score-label">{myScore}/5</span>}
+                    </div>
+                  ) : (
+                    <p className="page-intro-text">
+                      <Link to="/login">Log in</Link> to rate this movie and unlock
+                      recommendations.
+                    </p>
+                  )}
+                </div>
 
                 <div className="details-actions">
                   <button
