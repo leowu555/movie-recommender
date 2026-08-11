@@ -1,4 +1,6 @@
 .app-shell {
+  position: relative;
+  z-index: 1;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -8,10 +10,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.5rem;
+  gap: 1rem;
+  padding: 0.95rem 1.5rem;
   border-bottom: 1px solid var(--app-border);
-  background: rgba(10, 12, 20, 0.85);
-  backdrop-filter: blur(12px);
+  background: rgba(12, 6, 8, 0.55);
+  backdrop-filter: blur(14px) saturate(1.2);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -20,45 +23,86 @@
 .app-logo {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.7rem;
   text-decoration: none;
   color: var(--app-text-heading);
-  font-weight: 700;
-  font-size: 1.15rem;
-  letter-spacing: -0.02em;
+  min-width: 0;
 }
 
-.app-logo-icon {
+.app-logo-mark {
+  position: relative;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+}
+
+.app-logo-reel {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid var(--app-accent);
+  background:
+    radial-gradient(circle at center, transparent 28%, var(--app-accent) 30%, var(--app-accent) 42%, transparent 44%),
+    conic-gradient(from 0deg, transparent 0 20deg, rgba(240, 180, 41, 0.55) 20deg 40deg, transparent 40deg 80deg, rgba(240, 180, 41, 0.55) 80deg 100deg, transparent 100deg 140deg, rgba(240, 180, 41, 0.55) 140deg 160deg, transparent 160deg 200deg, rgba(240, 180, 41, 0.55) 200deg 220deg, transparent 220deg 260deg, rgba(240, 180, 41, 0.55) 260deg 280deg, transparent 280deg 320deg, rgba(240, 180, 41, 0.55) 320deg 340deg, transparent 340deg 360deg);
+  box-shadow: 0 0 16px var(--app-accent-glow);
+  animation: reelSpin 8s linear infinite;
+}
+
+.app-logo-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  min-width: 0;
+}
+
+.app-logo-brand {
+  font-family: var(--app-font-display);
   font-size: 1.35rem;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.app-logo-tag {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--app-accent);
 }
 
 .app-nav {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .app-nav-link {
   position: relative;
   color: var(--app-text-muted);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 500;
-  padding: 0.45rem 0.9rem;
-  border-radius: 8px;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
   border: 1px solid transparent;
-  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  transition: color 0.2s, border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
 
 .app-nav-link:hover {
   color: var(--app-text-heading);
   background: var(--app-accent-dim);
+  border-color: rgba(240, 180, 41, 0.2);
 }
 
 .app-nav-link-active {
   color: var(--app-text-heading);
-  border-color: var(--app-border);
-  background: var(--app-surface);
+  border-color: rgba(240, 180, 41, 0.35);
+  background: rgba(240, 180, 41, 0.1);
+  box-shadow: 0 0 20px rgba(240, 180, 41, 0.12);
 }
 
 .nav-badge {
@@ -71,22 +115,28 @@
   padding: 0 0.3rem;
   font-size: 0.7rem;
   font-weight: 700;
-  color: #0a0c14;
+  color: #1a0e08;
   background: var(--app-accent);
   border-radius: 999px;
 }
 
 .app-main {
+  position: relative;
+  z-index: 1;
   flex: 1;
   width: 100%;
 }
 
 .app-footer {
+  position: relative;
+  z-index: 1;
   padding: 2rem 1.5rem;
   text-align: center;
   border-top: 1px solid var(--app-border);
   color: var(--app-text-muted);
   font-size: 0.8rem;
+  background: rgba(8, 4, 6, 0.45);
+  backdrop-filter: blur(8px);
 }
 
 .app-footer-inner {
@@ -98,7 +148,7 @@
   margin: 0 0 0.35rem;
   font-size: 0.75rem;
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--app-accent);
 }
@@ -123,4 +173,33 @@
 
 .app-footer-links a:hover {
   color: var(--app-accent);
+}
+
+@keyframes reelSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .app-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.85rem 1rem;
+  }
+
+  .app-nav {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .app-logo-brand {
+    font-size: 1.15rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-logo-reel {
+    animation: none;
+  }
 }

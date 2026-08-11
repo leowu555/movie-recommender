@@ -1,0 +1,308 @@
+.theatre-atmosphere {
+  --parallax-x: 0;
+  --parallax-y: 0;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 70% 45% at 50% 18%, rgba(255, 196, 86, 0.16), transparent 55%),
+    radial-gradient(ellipse 90% 60% at 50% 100%, rgba(40, 12, 8, 0.85), transparent 55%),
+    linear-gradient(180deg, #12080a 0%, #1a0e10 35%, #0c0708 100%);
+}
+
+.theatre-screen-glow {
+  position: absolute;
+  top: 4%;
+  left: 50%;
+  width: min(72vw, 820px);
+  height: min(28vh, 260px);
+  transform: translate3d(
+      calc(-50% + var(--parallax-x) * 18px),
+      calc(var(--parallax-y) * 10px),
+      0
+    )
+    perspective(900px) rotateX(8deg);
+  background:
+    linear-gradient(180deg, rgba(255, 236, 190, 0.55), rgba(255, 180, 70, 0.08) 70%, transparent),
+    radial-gradient(ellipse at center, rgba(255, 220, 140, 0.35), transparent 70%);
+  filter: blur(2px);
+  opacity: 0.85;
+  animation: screenPulse 7s ease-in-out infinite;
+}
+
+.theatre-projector-beam {
+  position: absolute;
+  top: -8%;
+  left: 50%;
+  transform-origin: top center;
+  clip-path: polygon(46% 0, 54% 0, 92% 100%, 8% 100%);
+  filter: blur(0.5px);
+}
+
+.theatre-projector-beam-main {
+  width: min(90vw, 960px);
+  height: 78vh;
+  margin-left: calc(min(90vw, 960px) / -2);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 214, 120, 0.22) 0%,
+    rgba(255, 180, 80, 0.08) 38%,
+    rgba(255, 150, 60, 0.02) 70%,
+    transparent 100%
+  );
+  transform: translate3d(calc(var(--parallax-x) * 24px), 0, 0);
+  animation: beamSweep 9s ease-in-out infinite;
+}
+
+.theatre-projector-beam-soft {
+  width: min(70vw, 700px);
+  height: 65vh;
+  margin-left: calc(min(70vw, 700px) / -2);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 240, 200, 0.12),
+    rgba(255, 170, 70, 0.04) 50%,
+    transparent
+  );
+  transform: translate3d(calc(var(--parallax-x) * -14px), 0, 0);
+  animation: beamSweep 11s ease-in-out infinite reverse;
+}
+
+.theatre-curtains {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.theatre-curtain {
+  width: min(18vw, 220px);
+  height: 100%;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(90, 14, 24, 0.55) 0px,
+      rgba(90, 14, 24, 0.55) 10px,
+      rgba(120, 22, 34, 0.45) 10px,
+      rgba(120, 22, 34, 0.45) 20px
+    ),
+    linear-gradient(180deg, rgba(60, 8, 14, 0.9), rgba(20, 4, 8, 0.35));
+  box-shadow: inset -20px 0 40px rgba(0, 0, 0, 0.35);
+  opacity: 0.55;
+  transform: translate3d(calc(var(--parallax-x) * -10px), 0, 0);
+}
+
+.theatre-curtain-right {
+  box-shadow: inset 20px 0 40px rgba(0, 0, 0, 0.35);
+  transform: translate3d(calc(var(--parallax-x) * 10px), 0, 0);
+}
+
+.theatre-seats {
+  position: absolute;
+  left: 50%;
+  bottom: -8%;
+  width: 140%;
+  height: 42%;
+  transform: translate3d(
+      calc(-50% + var(--parallax-x) * 12px),
+      calc(var(--parallax-y) * 8px),
+      0
+    )
+    perspective(700px) rotateX(58deg);
+  background:
+    repeating-linear-gradient(
+      180deg,
+      transparent 0,
+      transparent 18px,
+      rgba(180, 40, 50, 0.18) 18px,
+      rgba(180, 40, 50, 0.18) 28px,
+      transparent 28px,
+      transparent 36px
+    ),
+    linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.55));
+  mask-image: linear-gradient(180deg, transparent, #000 35%, #000 80%, transparent);
+  opacity: 0.55;
+}
+
+.theatre-film-strip {
+  position: absolute;
+  top: -10%;
+  width: 52px;
+  height: 120%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px 0;
+  background: rgba(12, 8, 6, 0.72);
+  border: 1px solid rgba(255, 200, 120, 0.12);
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.45);
+  animation: filmScroll 18s linear infinite;
+  opacity: 0.45;
+}
+
+.theatre-film-strip-left {
+  left: max(1.5rem, 3vw);
+  transform: translate3d(calc(var(--parallax-x) * -8px), 0, 0) rotate(-2deg);
+}
+
+.theatre-film-strip-right {
+  right: max(1.5rem, 3vw);
+  animation-duration: 22s;
+  animation-direction: reverse;
+  transform: translate3d(calc(var(--parallax-x) * 8px), 0, 0) rotate(2deg);
+}
+
+.theatre-film-frame {
+  flex: 0 0 64px;
+  margin: 0 8px;
+  border-radius: 3px;
+  background:
+    linear-gradient(135deg, rgba(255, 190, 90, 0.18), rgba(255, 255, 255, 0.04)),
+    rgba(40, 28, 20, 0.9);
+  box-shadow: inset 0 0 0 1px rgba(255, 220, 160, 0.12);
+  position: relative;
+}
+
+.theatre-film-frame::before,
+.theatre-film-frame::after {
+  content: '';
+  position: absolute;
+  left: -7px;
+  width: 5px;
+  height: 8px;
+  top: 12px;
+  border-radius: 1px;
+  background: rgba(255, 220, 160, 0.25);
+  box-shadow: 0 20px 0 rgba(255, 220, 160, 0.25), 0 40px 0 rgba(255, 220, 160, 0.25);
+}
+
+.theatre-film-frame::after {
+  left: auto;
+  right: -7px;
+}
+
+.theatre-dust {
+  position: absolute;
+  inset: 0;
+}
+
+.theatre-dust-mote {
+  position: absolute;
+  left: var(--dust-x);
+  bottom: -10%;
+  width: var(--dust-size);
+  height: var(--dust-size);
+  border-radius: 50%;
+  background: rgba(255, 230, 180, 0.7);
+  box-shadow: 0 0 6px rgba(255, 210, 120, 0.55);
+  animation: dustRise var(--dust-duration) linear infinite;
+  animation-delay: var(--dust-delay);
+  opacity: 0;
+}
+
+.theatre-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  animation: grainShift 0.4s steps(2) infinite;
+  mix-blend-mode: overlay;
+}
+
+.theatre-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at center, transparent 35%, rgba(0, 0, 0, 0.55) 100%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.25), transparent 20%, transparent 70%, rgba(0, 0, 0, 0.55));
+}
+
+@keyframes screenPulse {
+  0%,
+  100% {
+    opacity: 0.75;
+    filter: blur(2px) brightness(1);
+  }
+  50% {
+    opacity: 0.95;
+    filter: blur(1.5px) brightness(1.15);
+  }
+}
+
+@keyframes beamSweep {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes filmScroll {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 0 -40%;
+  }
+}
+
+@keyframes dustRise {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(0.8);
+  }
+  15% {
+    opacity: 0.85;
+  }
+  85% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(12px, -110vh, 0) scale(1.2);
+  }
+}
+
+@keyframes grainShift {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-2%, 2%);
+  }
+}
+
+@media (max-width: 720px) {
+  .theatre-film-strip,
+  .theatre-curtain {
+    display: none;
+  }
+
+  .theatre-seats {
+    opacity: 0.35;
+  }
+
+  .theatre-projector-beam-main {
+    height: 60vh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theatre-screen-glow,
+  .theatre-projector-beam-main,
+  .theatre-projector-beam-soft,
+  .theatre-film-strip,
+  .theatre-dust-mote,
+  .theatre-grain {
+    animation: none;
+  }
+
+  .theatre-dust-mote {
+    opacity: 0.25;
+  }
+}

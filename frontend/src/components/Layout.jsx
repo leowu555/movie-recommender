@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getWatchlist } from '../utils/storage'
+import TheatreAtmosphere from './TheatreAtmosphere'
 import Toast from './Toast'
 import './Layout.css'
 
@@ -25,15 +26,20 @@ function Layout({ children }) {
 
   return (
     <div className="app-shell">
+      <TheatreAtmosphere />
+
       <header className="app-header">
         <Link to="/" className="app-logo">
-          <span className="app-logo-icon" aria-hidden="true">
-            🎬
+          <span className="app-logo-mark" aria-hidden="true">
+            <span className="app-logo-reel" />
           </span>
-          <span className="app-logo-text">Movie Recommender</span>
+          <span className="app-logo-text">
+            <span className="app-logo-brand">Movie Recommender</span>
+            <span className="app-logo-tag">Now showing</span>
+          </span>
         </Link>
 
-        <nav className="app-nav">
+        <nav className="app-nav" aria-label="Primary">
           <Link to="/" className={navLinkClass('/')}>
             Search
           </Link>

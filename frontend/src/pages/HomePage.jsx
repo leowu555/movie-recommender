@@ -16,12 +16,6 @@ const SORT_OPTIONS = [
   { value: 'title', label: 'Title A–Z' },
 ]
 
-const FEATURES = [
-  { icon: '🔍', title: 'Live search', text: 'Real-time results from TMDB via your AWS API' },
-  { icon: '🍿', title: 'Watchlist', text: 'Save movies to watch later from any details page' },
-  { icon: '⭐', title: 'Ratings & details', text: 'Posters, runtime, genres, and scores in one view' },
-]
-
 function HomePage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [query, setQuery] = useState('')
@@ -121,13 +115,27 @@ function HomePage() {
   }, [results, sortBy])
 
   return (
-    <div className="page">
-      <section className="hero">
-        <p className="hero-eyebrow">Discover films</p>
-        <h1 className="hero-title">Find your next favorite movie</h1>
+    <div className={`page${hasSearched ? ' page-searched' : ' page-landing'}`}>
+      <section className={`hero theatre-hero${hasSearched ? ' theatre-hero-compact' : ''}`}>
+        <div className="theatre-hero-screen" aria-hidden="true">
+          <div className="theatre-hero-screen-inner">
+            <span className="theatre-marquee-light" />
+            <span className="theatre-marquee-light" />
+            <span className="theatre-marquee-light" />
+            <span className="theatre-marquee-light" />
+            <span className="theatre-marquee-light" />
+            <span className="theatre-marquee-light" />
+          </div>
+        </div>
+
+        <p className="hero-brand">Movie Recommender</p>
+        <h1 className="hero-title">
+          {hasSearched ? 'What are we watching?' : 'Step into the theatre'}
+        </h1>
         <p className="hero-subtitle">
-          Search thousands of titles with real-time data from TMDB. Save films to your
-          watchlist and explore full details in one click.
+          {hasSearched
+            ? 'Refine your search or pick a title from the results below.'
+            : 'Search live TMDB titles, rate what you love, and get recommendations that feel personal.'}
         </p>
 
         <form className="search-form" onSubmit={handleSearch}>
@@ -158,7 +166,7 @@ function HomePage() {
 
         <div className="chip-groups">
           <div className="chip-group">
-            <span className="chip-label">Popular</span>
+            <span className="chip-label">Now trending</span>
             <div className="chips">
               {POPULAR_SEARCHES.map((term) => (
                 <button
@@ -198,16 +206,22 @@ function HomePage() {
       </section>
 
       {!hasSearched && !loading && (
-        <section className="features-section">
-          {FEATURES.map((f) => (
-            <div key={f.title} className="feature-card">
-              <span className="feature-icon" aria-hidden="true">
-                {f.icon}
-              </span>
-              <h3 className="feature-title">{f.title}</h3>
-              <p className="feature-text">{f.text}</p>
+        <section className="lobby-strip" aria-label="How it works">
+          <p className="lobby-strip-title">Inside the lobby</p>
+          <div className="lobby-marquee">
+            <div className="lobby-marquee-track">
+              <span>Live TMDB search</span>
+              <span>Star ratings</span>
+              <span>Collaborative filtering</span>
+              <span>Personal watchlist</span>
+              <span>AWS Lambda API</span>
+              <span>Live TMDB search</span>
+              <span>Star ratings</span>
+              <span>Collaborative filtering</span>
+              <span>Personal watchlist</span>
+              <span>AWS Lambda API</span>
             </div>
-          ))}
+          </div>
         </section>
       )}
 
@@ -243,7 +257,7 @@ function HomePage() {
 
       {hasSearched && !loading && results.length === 0 && !error && (
         <div className="empty-state">
-          <div className="empty-state-icon">🔍</div>
+          <div className="empty-state-icon">No match</div>
           <p>No movies found for &ldquo;{query}&rdquo;.</p>
           <p className="empty-state-hint">Try a shorter title or check spelling.</p>
         </div>

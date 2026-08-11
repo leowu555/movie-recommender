@@ -1,22 +1,23 @@
 :root {
-  --app-bg: #0a0c14;
-  --app-bg-elevated: #12151f;
-  --app-surface: rgba(22, 26, 38, 0.9);
-  --app-border: rgba(255, 255, 255, 0.08);
-  --app-text: #c4cad6;
-  --app-text-muted: #8b93a7;
-  --app-text-heading: #f4f6fb;
-  --app-accent: #e8b923;
-  --app-accent-hover: #f5cc3d;
-  --app-accent-dim: rgba(232, 185, 35, 0.12);
-  --app-accent-glow: rgba(232, 185, 35, 0.35);
-  --app-danger: #f87171;
-  --app-radius: 12px;
-  --app-radius-lg: 20px;
-  --app-font: 'DM Sans', system-ui, sans-serif;
-  --app-font-display: 'Outfit', system-ui, sans-serif;
-  --app-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
-  --app-shadow-card: 0 4px 24px rgba(0, 0, 0, 0.35);
+  --app-bg: #12080a;
+  --app-bg-elevated: #1c1014;
+  --app-surface: rgba(28, 16, 20, 0.78);
+  --app-border: rgba(255, 210, 150, 0.12);
+  --app-text: #d7cfc4;
+  --app-text-muted: #9a8f84;
+  --app-text-heading: #fff4e6;
+  --app-accent: #f0b429;
+  --app-accent-hover: #ffc94a;
+  --app-accent-dim: rgba(240, 180, 41, 0.14);
+  --app-accent-glow: rgba(240, 180, 41, 0.38);
+  --app-danger: #ff8b7a;
+  --app-radius: 10px;
+  --app-radius-lg: 18px;
+  --app-font: 'Instrument Sans', system-ui, sans-serif;
+  --app-font-display: 'Bebas Neue', 'Impact', sans-serif;
+  --app-font-serif: 'Instrument Serif', Georgia, serif;
+  --app-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+  --app-shadow-card: 0 8px 28px rgba(0, 0, 0, 0.4);
 }
 
 *,
@@ -33,14 +34,12 @@ body {
   line-height: 1.5;
   color: var(--app-text);
   background: var(--app-bg);
-  background-image:
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(232, 185, 35, 0.15), transparent),
-    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(99, 102, 241, 0.08), transparent);
-  background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
 }
 
 #root {
+  position: relative;
+  z-index: 1;
   min-height: 100vh;
   width: 100%;
   margin: 0;
@@ -52,7 +51,8 @@ h1,
 h2,
 h3 {
   font-family: var(--app-font-display);
-  font-weight: 600;
+  font-weight: 400;
+  letter-spacing: 0.04em;
   color: var(--app-text-heading);
 }
 
@@ -66,4 +66,9 @@ button {
 
 img {
   max-width: 100%;
+}
+
+::selection {
+  background: rgba(240, 180, 41, 0.35);
+  color: #fff8ec;
 }

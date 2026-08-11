@@ -45,7 +45,7 @@ function WatchlistPage() {
 
       {items.length === 0 ? (
         <div className="empty-state">
-          <div className="empty-state-icon">🍿</div>
+          <div className="empty-state-icon">Empty seats</div>
           <p>Your watchlist is empty.</p>
           <p className="empty-state-hint">
             Open any movie and tap &ldquo;Add to watchlist&rdquo;.

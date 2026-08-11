@@ -4,57 +4,175 @@
   padding: 0 1.5rem 3rem;
 }
 
-/* —— Home hero —— */
+.page-landing {
+  padding-top: 0;
+}
+
+/* —— Home hero (cinema entrance) —— */
 .hero {
   text-align: center;
   padding: 2.5rem 1rem 2rem;
   margin-bottom: 2rem;
 }
 
-.hero-eyebrow {
-  display: inline-block;
-  margin: 0 0 0.75rem;
-  padding: 0.35rem 0.85rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--app-accent);
-  background: var(--app-accent-dim);
-  border: 1px solid rgba(232, 185, 35, 0.25);
-  border-radius: 999px;
+.theatre-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: min(78vh, 720px);
+  margin: 0 -0.25rem 1.5rem;
+  padding: 3.5rem 1.25rem 2.75rem;
+  overflow: hidden;
+}
+
+.theatre-hero-compact {
+  min-height: auto;
+  padding: 2rem 1rem 1.5rem;
+}
+
+.theatre-hero-screen {
+  position: absolute;
+  inset: 8% 8% auto;
+  height: 42%;
+  max-height: 280px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.theatre-hero-screen-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px 8px 4px 4px;
+  background:
+    linear-gradient(180deg, rgba(255, 236, 190, 0.18), rgba(255, 170, 70, 0.04) 70%, transparent),
+    rgba(255, 220, 160, 0.06);
+  border: 1px solid rgba(255, 210, 140, 0.18);
+  box-shadow:
+    0 0 60px rgba(255, 190, 80, 0.18),
+    inset 0 0 40px rgba(255, 220, 150, 0.08);
+  animation: heroScreenGlow 6s ease-in-out infinite;
+}
+
+.theatre-marquee-light {
+  position: absolute;
+  top: -7px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--app-accent);
+  box-shadow: 0 0 10px var(--app-accent-glow);
+  animation: marqueeBlink 1.6s ease-in-out infinite;
+}
+
+.theatre-marquee-light:nth-child(1) { left: 8%; animation-delay: 0s; }
+.theatre-marquee-light:nth-child(2) { left: 24%; animation-delay: 0.2s; }
+.theatre-marquee-light:nth-child(3) { left: 40%; animation-delay: 0.4s; }
+.theatre-marquee-light:nth-child(4) { left: 56%; animation-delay: 0.1s; }
+.theatre-marquee-light:nth-child(5) { left: 72%; animation-delay: 0.35s; }
+.theatre-marquee-light:nth-child(6) { left: 88%; animation-delay: 0.55s; }
+
+.theatre-hero > *:not(.theatre-hero-screen) {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-brand {
+  margin: 0 0 0.85rem;
+  font-family: var(--app-font-display);
+  font-size: clamp(2.8rem, 10vw, 5.5rem);
+  line-height: 0.92;
+  letter-spacing: 0.06em;
+  color: var(--app-text-heading);
+  text-shadow:
+    0 0 40px rgba(255, 200, 100, 0.35),
+    0 12px 40px rgba(0, 0, 0, 0.55);
+  animation: brandRise 1s ease-out both;
+}
+
+.theatre-hero-compact .hero-brand {
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  margin-bottom: 0.4rem;
 }
 
 .hero-title {
   margin: 0 0 0.75rem;
-  font-size: clamp(2rem, 5vw, 2.75rem);
-  font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.03em;
-  background: linear-gradient(135deg, #fff 0%, #c4cad6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-family: var(--app-font-serif);
+  font-size: clamp(1.35rem, 3.2vw, 1.85rem);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  color: rgba(255, 236, 210, 0.92);
+  animation: brandRise 1s ease-out 0.12s both;
+}
+
+.theatre-hero-compact .hero-title {
+  font-size: clamp(1.15rem, 2.5vw, 1.45rem);
 }
 
 .hero-subtitle {
   margin: 0 auto 2rem;
-  max-width: 480px;
+  max-width: 34rem;
   font-size: 1.05rem;
   color: var(--app-text-muted);
   line-height: 1.55;
+  animation: brandRise 1s ease-out 0.22s both;
+}
+
+@keyframes heroScreenGlow {
+  0%,
+  100% {
+    opacity: 0.75;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 1;
+    filter: brightness(1.2);
+  }
+}
+
+@keyframes marqueeBlink {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes brandRise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .search-form {
   display: flex;
   gap: 0.65rem;
+  width: 100%;
   max-width: 560px;
   margin: 0 auto;
   padding: 0.35rem;
-  background: var(--app-surface);
-  border: 1px solid var(--app-border);
+  background: rgba(18, 10, 12, 0.72);
+  border: 1px solid rgba(255, 210, 140, 0.22);
   border-radius: var(--app-radius-lg);
-  box-shadow: var(--app-shadow-card);
+  box-shadow:
+    0 0 0 1px rgba(255, 190, 80, 0.05),
+    0 16px 40px rgba(0, 0, 0, 0.45),
+    0 0 40px rgba(240, 180, 41, 0.08);
+  backdrop-filter: blur(10px);
+  animation: brandRise 1s ease-out 0.32s both;
 }
 
 .search-input-wrap {
@@ -141,9 +259,9 @@
 }
 
 .btn-primary {
-  color: #0a0c14;
-  background: linear-gradient(135deg, var(--app-accent) 0%, #d4a017 100%);
-  box-shadow: 0 2px 12px var(--app-accent-glow);
+  color: #1a0e08;
+  background: linear-gradient(135deg, var(--app-accent) 0%, #d49212 100%);
+  box-shadow: 0 2px 16px var(--app-accent-glow);
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -214,9 +332,13 @@
 }
 
 .empty-state-icon {
-  font-size: 2.5rem;
   margin-bottom: 0.75rem;
-  opacity: 0.7;
+  font-family: var(--app-font-display);
+  font-size: 1.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--app-accent);
+  opacity: 0.85;
 }
 
 .empty-state-hint {
@@ -229,51 +351,67 @@
   margin-top: 1.25rem;
 }
 
-/* —— Welcome features —— */
-.features-section {
-  display: grid;
-  gap: 1rem;
-  margin-top: 1rem;
+/* —— Lobby marquee (below hero) —— */
+.lobby-strip {
+  margin: 0 auto 2.5rem;
+  text-align: center;
+  overflow: hidden;
 }
 
-@media (min-width: 640px) {
-  .features-section {
-    grid-template-columns: repeat(3, 1fr);
+.lobby-strip-title {
+  margin: 0 0 0.85rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--app-accent);
+}
+
+.lobby-marquee {
+  position: relative;
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+
+.lobby-marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 2.5rem;
+  animation: lobbyScroll 28s linear infinite;
+}
+
+.lobby-marquee-track span {
+  font-family: var(--app-font-display);
+  font-size: 1.35rem;
+  letter-spacing: 0.12em;
+  color: rgba(255, 236, 210, 0.55);
+  white-space: nowrap;
+}
+
+.lobby-marquee-track span::before {
+  content: '·';
+  margin-right: 2.5rem;
+  color: var(--app-accent);
+}
+
+@keyframes lobbyScroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
   }
 }
 
-.feature-card {
-  padding: 1.25rem 1.35rem;
-  text-align: left;
-  border: 1px solid var(--app-border);
-  border-radius: var(--app-radius-lg);
-  background: var(--app-surface);
-  transition: border-color 0.2s, transform 0.2s;
-}
-
-.feature-card:hover {
-  border-color: rgba(232, 185, 35, 0.25);
-  transform: translateY(-2px);
-}
-
-.feature-icon {
-  font-size: 1.5rem;
-  display: block;
-  margin-bottom: 0.65rem;
-}
-
-.feature-title {
-  margin: 0 0 0.35rem;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--app-text-heading);
-}
-
-.feature-text {
-  margin: 0;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  color: var(--app-text-muted);
+@media (prefers-reduced-motion: reduce) {
+  .lobby-marquee-track,
+  .theatre-hero-screen-inner,
+  .theatre-marquee-light,
+  .hero-brand,
+  .hero-title,
+  .hero-subtitle,
+  .search-form {
+    animation: none;
+  }
 }
 
 /* —— Card entrance —— */
@@ -662,8 +800,8 @@
 
 .movie-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(232, 185, 35, 0.25);
-  box-shadow: var(--app-shadow), 0 0 0 1px rgba(232, 185, 35, 0.1);
+  border-color: rgba(240, 180, 41, 0.35);
+  box-shadow: var(--app-shadow), 0 0 28px rgba(240, 180, 41, 0.12);
 }
 
 .movie-card-poster-wrap {
