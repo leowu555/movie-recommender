@@ -12,25 +12,26 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 import os
-from dotenv import load_dotenv
+
+from config.environ import (
+    load_local_env,
+    parse_allowed_hosts,
+    parse_cors_allowed_origins,
+    parse_csrf_trusted_origins,
+    parse_debug,
+    require_secret_key,
+)
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv()
+load_local_env(BASE_DIR)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-vrelh-j0n13wu1z%4wyr_-4y)p9=roj88d&&c^jq+yjy^plvf@'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = [
-    "127.0.0.1",
-    "localhost",
-    "4stl3ctbxyz2fuuatqbyeiwpaa0mgyco.lambda-url.ca-central-1.on.aws",
-]
+SECRET_KEY = require_secret_key()
+DEBUG = parse_debug()
+ALLOWED_HOSTS = parse_allowed_hosts()
 
 
 # Application definition
@@ -135,14 +136,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "http://localhost:5174",
-    "http://127.0.0.1:5174",
-    "http://localhost:5175",
-    "http://127.0.0.1:5175",
-]
+CORS_ALLOWED_ORIGINS = parse_cors_allowed_origins()
+CSRF_TRUSTED_ORIGINS = parse_csrf_trusted_origins()
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
