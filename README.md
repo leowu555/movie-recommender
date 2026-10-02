@@ -2,7 +2,7 @@
 
 A full-stack movie discovery and recommendation platform that lets users search live movie data, rate films, and receive personalized recommendations.
 
-Long-term evolution (CineRank) is specified in [`docs/PROJECT_SPEC.md`](docs/PROJECT_SPEC.md). Task status lives in [`docs/ROADMAP.md`](docs/ROADMAP.md) and [`docs/PROGRESS.md`](docs/PROGRESS.md). Treat those docs as the source of truth for implemented vs planned work.
+Long-term evolution (CineRank) is specified in [`docs/PROJECT_SPEC.md`](docs/PROJECT_SPEC.md). Task status lives in [`docs/ROADMAP.md`](docs/ROADMAP.md) and [`docs/PROGRESS.md`](docs/PROGRESS.md). Repeatable install and startup: [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md). Configuration: [`docs/CONFIGURATION.md`](docs/CONFIGURATION.md). Treat those docs as the source of truth for implemented vs planned work.
 
 Built with **Django**, **React**, **PostgreSQL**, **scikit-learn**, and the **TMDB API**, with a serverless movie API deployed on **AWS Lambda**.
 
@@ -84,9 +84,11 @@ Built with **Django**, **React**, **PostgreSQL**, **scikit-learn**, and the **TM
 
 ## Quick Start
 
+Full checklist (runtimes, locked installs, when to seed): [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md).
+
 ### Prerequisites
-- Python 3
-- Node.js + npm
+- Python 3.12 or 3.13 (Django 6.0; lock compiled with 3.13)
+- Node.js 20+ and npm 10+
 - PostgreSQL 16
 - TMDB API key
 
@@ -94,22 +96,24 @@ Built with **Django**, **React**, **PostgreSQL**, **scikit-learn**, and the **TM
 
 ```bash
 cd backend
-python3 -m venv venv
+python3.13 -m venv venv
 source venv/bin/activate
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 
 # Start Postgres (macOS / Homebrew)
 brew services start postgresql@16
 createdb movie_recommender   # first time only
 
-# Configure environment
+# Configure environment (do not overwrite an existing .env)
 cp .env.example .env
 python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
 # Put the printed value in SECRET_KEY, then set TMDB_API_KEY and DB_* in .env
 # See docs/CONFIGURATION.md for every variable and for Lambda env vars.
 
 python manage.py migrate
-python manage.py shell -c "exec(open('seed_demo_data.py').read())"
+# Optional demo users only — skip to keep an existing database unchanged:
+# python manage.py shell -c "exec(open('seed_demo_data.py').read())"
 python manage.py runserver
 ```
 
@@ -119,7 +123,7 @@ Backend: `http://127.0.0.1:8000`
 
 ```bash
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
 
