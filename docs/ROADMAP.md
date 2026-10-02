@@ -27,7 +27,7 @@ Do not add Redis or workers in this phase.
 | ID | Task | Status | Acceptance criteria |
 |----|------|--------|---------------------|
 | 1.1 | Document and validate configuration; ignore secrets and generated files | done | `.env.example` lists required vars; committed secrets audit (SECRET_KEY/DEBUG) documented or moved to env without breaking local start; gitignore covers `.env`, venv, node_modules, build artifacts, local DB files; README startup still accurate |
-| 1.2 | Establish dependency locking and repeatable local startup | not_started | Backend pins remain complete and installable from `requirements.txt` (or a chosen lock workflow); frontend lockfile used; documented commands start API and UI on a clean machine checklist |
+| 1.2 | Establish dependency locking and repeatable local startup | done | Backend pins remain complete and installable from `requirements.txt` (or a chosen lock workflow); frontend lockfile used; documented commands start API and UI on a clean machine checklist |
 | 1.3 | Add Docker Compose **only if** it clearly improves local Postgres/app startup | not_started | Optional: `docker compose` brings up Postgres (and later documented services) with a documented override for native Homebrew; app still runnable without Compose if Compose is skipped |
 | 1.4 | Focused regression checks: auth, rating ownership, current recommender | not_started | Tests prove: unauthenticated ratings/recs rejected; user A cannot read/write user B’s ratings; score bounds; CF returns documented `method` keys on a tiny fixture; movies tests still pass |
 | 1.5 | Add CI for the established checks | not_started | GitHub Actions (or existing CI) runs backend tests on PR; Postgres service or documented test settings; no secrets in logs |
@@ -194,8 +194,6 @@ Keep experimental until results justify serving.
 
 ## Follow-ups discovered in Phase 0 (not blocking 1.1)
 
-- Unused `djangorestframework_simplejwt` / `PyJWT` unless JWT is chosen later.
-- Unused `User` import in `recommendations/views.py`.
 - `watchlist` installed but has no URLs or models.
 - Dense CF on all ratings will not scale; acceptable until Phase 4 eval path exists.
-- Hardcoded Lambda hostname in `ALLOWED_HOSTS`.
+- Lambda Function URL hostname must be supplied via `ALLOWED_HOSTS` (no longer hardcoded).

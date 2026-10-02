@@ -37,10 +37,14 @@ Frontend: optional `frontend/.env` with `VITE_API_BASE_URL` (see README). That f
 
 ## Local startup
 
-1. PostgreSQL 16 running; database created.
-2. `backend/.env` with `SECRET_KEY`, `TMDB_API_KEY`, `DB_*`; `DEBUG=true` is typical locally.
-3. `cd backend && source venv/bin/activate && python manage.py migrate && python manage.py runserver`
-4. `cd frontend && npm run dev`
+See [`DEVELOPMENT.md`](DEVELOPMENT.md) for locked installs, PostgreSQL, migrations, and two-terminal run. Summary:
+
+1. PostgreSQL 16 running; database created (`createdb` only when needed).
+2. `backend/.env` with `SECRET_KEY`, `TMDB_API_KEY`, `DB_*`; `DEBUG=true` is typical locally. Copy `.env.example` only if `.env` does not exist.
+3. `cd backend && source venv/bin/activate && pip install -r requirements.txt && python manage.py migrate && python manage.py runserver`
+4. `cd frontend && npm ci && npm run dev`
+
+Do not treat `seed_demo_data.py` as part of ordinary startup.
 
 Tests need a `SECRET_KEY` in the environment or `.env` because settings load at import time.
 

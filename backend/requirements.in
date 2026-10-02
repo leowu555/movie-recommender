@@ -1,0 +1,16 @@
+# Direct application dependencies. Pin versions here; do not edit
+# requirements.txt by hand. From backend/:
+#   PYTHON=/path/to/python3.13 ./compile-requirements.sh
+#
+# Keep this list to packages the application imports or needs at runtime.
+# Transitive packages belong in the compiled requirements.txt.
+
+Django==6.0.3
+djangorestframework==3.17.0
+django-cors-headers==4.9.0
+mangum==0.21.0
+numpy==2.5.2
+psycopg2-binary==2.9.11
+python-dotenv==1.2.2
+requests==2.32.5
+scikit-learn==1.9.0

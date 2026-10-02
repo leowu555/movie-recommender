@@ -2,43 +2,38 @@
 
 ## Current phase
 
-**Phase 1.** Task **1.1 complete** (environment-based configuration). Next: **1.2**.
+**Phase 1.** Task **1.2 complete** (dependency locking and repeatable startup). Next: **1.3**.
 
 ## Completed
 
 - **0.1–0.3** Repository audit and CineRank docs.
-- **1.1** Environment-based `SECRET_KEY` / `DEBUG` / hosts / CORS; `.env.example` and gitignore updates; parser tests; configuration docs.
+- **1.1** Environment-based configuration.
+- **1.2** `requirements.in` + pip-compile lock; unused simplejwt removed from the lock; frontend `npm ci` documented; `docs/DEVELOPMENT.md`.
 
 ## What is actually working (do not overclaim)
 
-- TMDB search and details via Django (slash and no-slash routes).
-- DRF token auth; ratings stored in PostgreSQL, scoped to `request.user`.
-- In-request user-based cosine CF with sparse-data fallbacks.
-- React UI for search, details, auth, profile, For You, localStorage watchlist.
-- Lambda Function URL packaging for the Django ASGI movie API (historical deploy). After 1.1, Lambda **must** set `SECRET_KEY` and `ALLOWED_HOSTS` (and typically `DEBUG=false`, `TMDB_API_KEY`) in the function environment; that update was not deployed in this task.
-- Movie API tests with mocked TMDB; configuration parser tests.
+Unchanged product behavior. Auth is still DRF token auth. Existing `backend/venv` was **not** rewritten; it may still contain old extra packages until you `pip install -r requirements.txt` (or recreate the venv).
 
-## Checks run in 1.1
+## Checks run in 1.2
 
-Ran (backend venv, temporary non-secret `SECRET_KEY` in the process environment; no `.env` file present in this workspace):
+Ran (throwaway environments; existing `backend/venv` and `frontend/node_modules` not used for clean-install checks):
 
-- `python manage.py test config movies` — 20 tests OK (Postgres test database created and destroyed).
+- `pip-compile` of `requirements.in` with Python 3.13 in a temp venv (pip-tools 7.6.1) — wrote `backend/requirements.txt`.
+- Temp venv `pip install -r requirements.txt` — success (macOS ARM wheels).
+- `pip check` — no broken requirements.
+- `rest_framework_simplejwt` / `jwt` not importable in the temp venv.
+- `python manage.py test config movies` in that venv — 20 tests OK.
 - `python manage.py check` — no issues.
-- `from config.lambda_handler import handler` — imported `Mangum` (no deploy, no Function URL call).
-- Direct parser calls for missing/blank `SECRET_KEY` and invalid `DEBUG` — `ImproperlyConfigured`.
+- Isolated frontend copy: `npm ci` then `npm run build` — build succeeded (Vite 8.0.7). `npm ls` matched the lock (React 19.2.5 via the existing caret range). `npm ci` printed an audit summary (11 vulnerabilities); not addressed in this task.
 
-Did **not** call live TMDB, upload Lambda, or modify application data. Did **not** read or write a local `.env`.
-
-Inspection: `backend/.env.example` is tracked; `.env` paths are gitignored; `settings.py` no longer contains a hardcoded secret or Lambda hostname. The previous `SECRET_KEY` value remains in git history.
+Did **not** call live TMDB, deploy Lambda, rebuild `lambda.zip`, or modify application data. Did **not** recreate `backend/venv`.
 
 ## Blockers
 
-Local run and Django tests that load settings require a nonempty `SECRET_KEY` in `backend/.env` or the process environment. Existing local `.env` files were not modified.
+None for marking 1.2 complete on macOS + Python 3.13.
 
-Lambda will fail to boot until its environment includes `SECRET_KEY` and an `ALLOWED_HOSTS` value that includes the Function URL hostname.
-
-The old development `SECRET_KEY` remains in git history from earlier commits; rotate keys for any shared remote.
+Linux/Lambda wheel reproducibility is **not** verified (documented limitation).
 
 ## Exact next task
 
-**1.2 — Establish dependency locking and repeatable local startup.**
+**1.3 — Add Docker Compose only if it clearly improves local Postgres/app startup.**
