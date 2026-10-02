@@ -29,6 +29,7 @@ function Layout({ children }) {
       <TheatreAtmosphere />
 
       <header className="app-header">
+        <div className="app-header-inner">
         <Link to="/" className="app-logo">
           <span className="app-logo-mark" aria-hidden="true">
             <span className="app-logo-reel" />
@@ -64,6 +65,7 @@ function Layout({ children }) {
             </Link>
           )}
         </nav>
+        </div>
       </header>
 
       <main className="app-main">{children}</main>
@@ -71,7 +73,7 @@ function Layout({ children }) {
       <footer className="app-footer">
         <div className="app-footer-inner">
           <p className="app-footer-tagline">Discover · Rate · Recommend</p>
-          <p>Django · React · PostgreSQL · scikit-learn · TMDB · AWS Lambda</p>
+          <p>Movie data from TMDB</p>
           <div className="app-footer-links">
             <Link to="/">Search</Link>
             <Link to="/watchlist">Watchlist</Link>

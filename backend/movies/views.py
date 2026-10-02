@@ -33,7 +33,7 @@ def search_movies(request):
 
         data = response.json()
 
-    except Exception as e:
+    except Exception:
         return Response(
             {"error": "Something went wrong while fetching movies"},
             status=500

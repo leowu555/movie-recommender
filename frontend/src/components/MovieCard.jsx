@@ -7,33 +7,30 @@ function MovieCard({ movie, index = 0 }) {
 
   return (
     <li
-      className="movie-card movie-card-enter"
+      className="poster-card movie-card-enter"
       style={{ animationDelay: `${Math.min(index, 8) * 0.06}s` }}
     >
-      <div className="movie-card-poster-wrap">
-        {movie.poster_url ? (
-          <img className="movie-card-poster" src={movie.poster_url} alt={movie.title} loading="lazy" />
-        ) : (
-          <div className="movie-card-poster-placeholder">No poster</div>
-        )}
-        {movie.vote_average > 0 && (
-          <span className="movie-card-rating">★ {Number(movie.vote_average).toFixed(1)}</span>
-        )}
-      </div>
-      <div className="movie-card-body">
-        <h2 className="movie-card-title">
-          {movie.title}
-          {year && <span className="movie-card-year"> ({year})</span>}
-        </h2>
-        <p className="movie-card-overview">{movie.overview}</p>
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={() => navigate(`/movie/${movie.id}`)}
-        >
-          View full details
-        </button>
-      </div>
+      <button
+        type="button"
+        className="poster-card-hit"
+        onClick={() => navigate(`/movie/${movie.id}`)}
+        aria-label={`View ${movie.title}`}
+      >
+        <div className="poster-card-media">
+          {movie.poster_url ? (
+            <img src={movie.poster_url} alt="" loading="lazy" />
+          ) : (
+            <div className="poster-card-empty">No poster</div>
+          )}
+          {movie.vote_average > 0 && (
+            <span className="poster-card-score">★ {Number(movie.vote_average).toFixed(1)}</span>
+          )}
+          <div className="poster-card-shade">
+            <h2 className="poster-card-title">{movie.title}</h2>
+            {year && <p className="poster-card-meta">{year}</p>}
+          </div>
+        </div>
+      </button>
     </li>
   )
 }

@@ -1,8 +1,4 @@
-"""Parse process environment for Django settings.
-
-Local ``backend/.env`` is loaded with override=False so deployment-provided
-variables (Lambda, CI, the shell) always win over the file.
-"""
+"""Load Django settings from the process environment and optional backend/.env."""
 
 from __future__ import annotations
 
@@ -26,16 +22,14 @@ DEFAULT_CORS_ALLOWED_ORIGINS = [
 ]
 
 SECRET_KEY_HELP = (
-    'SECRET_KEY is not set or is blank. Generate a local development key with:\n'
+    'SECRET_KEY is not set. Generate one with:\n'
     '  python -c "from django.core.management.utils import get_random_secret_key; '
     'print(get_random_secret_key())"\n'
-    'Then set SECRET_KEY in backend/.env or in the process environment. '
-    'Deployment (including Lambda) must set SECRET_KEY as an environment variable.'
+    'Then add it to backend/.env or the process environment.'
 )
 
 
 def load_local_env(base_dir: Path) -> None:
-    """Load backend/.env if present. Existing environment variables are not overwritten."""
     load_dotenv(base_dir / '.env', override=False)
 
 

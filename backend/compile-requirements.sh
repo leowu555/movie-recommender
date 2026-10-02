@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
-# Regenerate backend/requirements.txt from requirements.in in a throwaway venv.
-# Does not modify backend/venv/.
-#
-# Interpreter: $PYTHON if set, else backend/venv/bin/python if present, else python3.
-# Requires Python 3.12+ (the lock in git was compiled with 3.13).
-# pip-tools is pinned so regenerations are comparable.
+# Compile requirements.txt from requirements.in. Does not touch backend/venv.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
