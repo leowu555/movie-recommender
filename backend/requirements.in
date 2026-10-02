@@ -1,0 +1,12 @@
+# Direct dependencies. Compile with ./compile-requirements.sh
+# Do not edit requirements.txt by hand.
+
+Django==6.0.3
+djangorestframework==3.17.0
+django-cors-headers==4.9.0
+mangum==0.21.0
+numpy==2.5.2
+psycopg2-binary==2.9.11
+python-dotenv==1.2.2
+requests==2.32.5
+scikit-learn==1.9.0

@@ -1,253 +1,211 @@
-# Movie Recommender (CineRank)
+# CineRank
 
-A full-stack movie discovery and recommendation platform that lets users search live movie data, rate films, and receive personalized recommendations.
+Search live TMDB titles, rate them 1–5, and get personalized recommendations from **user-based collaborative filtering**.
 
-Long-term evolution (CineRank) is specified in [`docs/PROJECT_SPEC.md`](docs/PROJECT_SPEC.md). Task status lives in [`docs/ROADMAP.md`](docs/ROADMAP.md) and [`docs/PROGRESS.md`](docs/PROGRESS.md). Treat those docs as the source of truth for implemented vs planned work.
+This repository is a working full-stack product (Django + React + PostgreSQL) plus a documented path toward measured recommenders. The live loop is real. Offline ranking metrics (Recall@K, NDCG@K) are **not** implemented yet; seed users are a **demo fixture**, not an evaluation set.
 
-Built with **Django**, **React**, **PostgreSQL**, **scikit-learn**, and the **TMDB API**, with a serverless movie API deployed on **AWS Lambda**.
-
----
-
-## Highlights
-
-- End-to-end product: search → details → rate → personalized recommendations
-- Live movie metadata and posters from TMDB
-- User authentication with token-based API access
-- Ratings persisted in PostgreSQL
-- User-based collaborative filtering with scikit-learn (cosine similarity)
-- React frontend with search, details, auth, profile, watchlist, and “For You” pages
-- Movie search/details API packaged and deployed to AWS Lambda
+Long-term plan: [`docs/PROJECT_SPEC.md`](docs/PROJECT_SPEC.md) · tasks: [`docs/ROADMAP.md`](docs/ROADMAP.md) · install: [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) · env vars: [`docs/CONFIGURATION.md`](docs/CONFIGURATION.md)
 
 ---
 
-## Tech Stack
+## Demo (5 minutes)
 
-| Area | Tools |
-|------|--------|
-| Frontend | React, Vite, React Router |
-| Backend | Django, Django REST Framework |
-| Database | PostgreSQL |
-| Machine Learning | scikit-learn, NumPy |
-| External Data | TMDB API |
-| Cloud | AWS Lambda (Function URL) |
+Prerequisites and install: [Quick start](#quick-start) or [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md). Seed only if you want these accounts:
+
+```bash
+cd backend
+python manage.py shell -c "exec(open('seed_demo_data.py').read())"
+```
+
+| Username | Password   | Taste (seed ratings) |
+|----------|------------|----------------------|
+| `alice`  | `demo1234` | Nolan / prestige: Inception, Dark Knight, Interstellar, Fight Club, Shawshank |
+| `bob`    | `demo1234` | Mix: Inception, Dark Knight, Parasite, Pulp Fiction, Forrest Gump |
+| `carol`  | `demo1234` | Drama / festival: Interstellar, Parasite, Shawshank, Forrest Gump, Pulp Fiction |
+
+Open **http://127.0.0.1:5173** (use `127.0.0.1`, not `localhost`, so CORS matches the API).
+
+1. Search **Inception** — catalog comes from TMDB through Django, not from a local movie table.
+2. Log in as **alice**.
+3. Open **For You**. With only the seed ratings, you should see **Pulp Fiction**, **Parasite**, and **Forrest Gump** (`method`: `collaborative_filtering`). Alice never rated those; Bob and Carol did, and they overlap with Alice on Nolan/prestige titles.
+4. Rate something new (for example a title Bob/Carol did not seed). Refresh **For You** — the matrix is rebuilt on that request.
+5. **Profile** shows alice’s stored ratings. **Watchlist** is browser `localStorage` (not per-account in Postgres).
+
+Log in as **bob** or **carol** to see a different neighbor set (table below).
+
+Lambda Function URL (if you point `VITE_API_BASE_URL` at it) covers **search and details only**. Auth, ratings, and recommendations need local Django + Postgres.
 
 ---
 
-## Features
+## What is implemented vs planned
 
-### Movie discovery
-- Search movies by title
-- View details (overview, genres, runtime, rating, poster, tagline)
-- Sort results and browse a polished UI
-
-### Accounts & personalization
-- Register / login / logout
-- Profile page with rating history
-- Rate movies 1–5 stars
-- Personalized “For You” recommendations
-
-### Recommendations approach
-1. Build a user–movie rating matrix from PostgreSQL
-2. Compute user similarity with cosine similarity (scikit-learn)
-3. Recommend highly rated movies from similar users
-4. Fall back gracefully when rating data is sparse
-
-### Cloud
-- Django movie search/details API deployed as a serverless Lambda function
-- Local full-stack demo uses Django + PostgreSQL for auth, ratings, and recommendations
+| Working now | Not yet (do not demo as done) |
+|-------------|-------------------------------|
+| TMDB search + details | Canonical `Movie` table / MovieLens IDs |
+| DRF token auth, ratings in Postgres | Persistent per-user watchlist |
+| In-request user–user CF | Train/serve split, Recall@K / NDCG@K |
+| React: search, details, rate, For You, profile | Hybrid / two-tower / LTR |
+| Optional Lambda zip for the TMDB proxy | Frontend on S3, API Gateway |
 
 ---
 
 ## Architecture
 
 ```text
-┌──────────────────────────────┐
-│  React Frontend (Vite)       │
-│  Search · Auth · Ratings UI  │
-└──────────────┬───────────────┘
-               │ REST / JSON
-┌──────────────▼───────────────┐
-│  Django REST API             │
-│  movies · accounts · ratings │
-│  recommendations             │
-└──────┬───────────────┬───────┘
-       │               │
-       ▼               ▼
- PostgreSQL         TMDB API
- (users/ratings)    (metadata)
+React (Vite)  --REST JSON-->  Django + DRF
+                                 |           |
+                          PostgreSQL      TMDB HTTP
+                          users, tokens,  live catalog
+                          ratings
+
+Optional: same ASGI app via Mangum on a Lambda Function URL
+(movie search/details in practice; no Postgres personalization on that path)
 ```
 
-**Local development** uses Django on `localhost:8000` and React on `localhost:5173`.  
-**AWS Lambda** hosts the movie search/details API for serverless deployment practice.
+**Identity:** Django `auth.User`. Movie identity is the **TMDB integer** on `ratings.Rating.movie_id`. There is no `Movie` model; title and poster are denormalized onto the rating row for the UI.
+
+**Why that split:** Discovery should stay current with TMDB. Personalization only needs titles users have already rated. A catalog table is a later ingest problem (Phase 2), not a blocker for CF on overlapping ratings.
+
+**Why one Django process:** The recommender is a single view over a small rating table. Splitting trainer, feature store, and model server would not change the demo and would hide the algorithm. When offline eval exists, algorithms move to a Python package with `fit` / `score` / `recommend` that does not need HTTP ([ADR 0001](docs/decisions/0001-keep-django-monolith.md)).
 
 ---
 
-## Quick Start
+## Recommendation algorithm
 
-### Prerequisites
-- Python 3
-- Node.js + npm
-- PostgreSQL 16
-- TMDB API key
+`GET /api/recommendations/` (header `Authorization: Token …`).
 
-### 1. Backend
+### Steps
+
+1. Load **all** ratings. Distinct users × distinct `movie_id`s become a dense NumPy matrix. Unrated cells are **0**.
+2. If the current user has no ratings, or the table is empty → `{ "method": "empty" }`.
+3. If there is only one user in the matrix → return that user’s top scores → `{ "method": "fallback_self" }`.
+4. `sklearn.metrics.pairwise.cosine_similarity` on user rows. Zero the current user’s self-similarity. Take up to **5** neighbors with similarity **> 0**.
+5. From those neighbors, consider movies scored **≥ 4** that the current user has not rated. Rank by `similarity × neighbor_score` (keep the max if two neighbors both liked it). Return up to **10** items → `{ "method": "collaborative_filtering" }`.
+6. If that set is empty → other users’ distinct titles (not a true popularity rank) → `{ "method": "fallback_popular" }`.
+
+`predicted_score` in the JSON is the **neighbor’s rating**, not a fitted predicted rating.
+
+### Why user–user cosine
+
+- The product question is “people like you also liked …”, which maps directly onto user similarity.
+- Cosine is the default in scikit-learn and is easy to explain: overlap in direction of the rating vector, not raw magnitude.
+- Item–item CF, matrix factorization, and content features need a catalog and a train/test protocol this repo does not have yet.
+
+### Known limitations (intentional for this version)
+
+| Choice | Effect |
+|--------|--------|
+| Zeros in the dense matrix | Cosine treats “never rated” like a 0. That is **not** “dislike”; it distorts similarity as the catalog of rated IDs grows. Sparse item–item CF is the planned fix. |
+| Rebuild on every request | Correct for a demo-sized table; not a serving architecture. |
+| Candidates = already-rated movies only | Cannot recommend a TMDB title nobody in the database has rated. |
+| No train/test split | Cannot claim generalization. Seed walkthrough ≠ model quality. |
+| `fallback_popular` uses `.distinct()[:5]` | Order is not “most rated”; it is a sparse-overlap escape hatch. |
+
+---
+
+## Measured results
+
+**Not measured:** Recall@K, NDCG@K, latency SLOs, A/B, production QPS. Do not treat the seed walkthrough as those.
+
+### Seed-set collaborative filtering (reproducible)
+
+Input: `backend/seed_demo_data.py` only (three users, eight movies). Same procedure as `recommendations/views.py` (dense cosine, neighbors with sim > 0, neighbor score ≥ 4, rank `sim × score`).
+
+User–user cosine on that matrix:
+
+|        | alice  | bob    | carol  |
+|--------|--------|--------|--------|
+| alice  | 1.000  | 0.418  | 0.404  |
+| bob    | 0.418  | 1.000  | 0.532  |
+| carol  | 0.404  | 0.532  | 1.000  |
+
+Bob and Carol share more titles (Parasite, Pulp Fiction, Forrest Gump) than either shares with Alice, so they are each other’s nearest neighbor.
+
+Expected **For You** lists (titles the user has not rated):
+
+| User  | Recommendations (rank order) | Why |
+|-------|------------------------------|-----|
+| alice | Pulp Fiction, Parasite, Forrest Gump | Closest neighbor is Bob (`sim ≈ 0.42`); he rated Pulp Fiction and Parasite 5. Forrest Gump comes from Carol (Bob rated it 3, so it is dropped by the ≥ 4 rule). |
+| bob   | Shawshank, Interstellar, Fight Club | Closest neighbor is Carol (`sim ≈ 0.53`). Fight Club is Alice’s 5. |
+| carol | Inception, The Dark Knight, Fight Club | Closest neighbor is Bob; Fight Club from Alice. |
+
+If **For You** does not match this table, extra ratings exist in Postgres, or the seed was not applied.
+
+### Automated checks (current)
+
+From `backend/` with `SECRET_KEY` set:
 
 ```bash
-cd backend
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
+python manage.py test config movies
+python manage.py check
+```
 
-# Start Postgres (macOS / Homebrew)
+These cover env parsing and TMDB proxy behavior with **mocked** HTTP. There are **no** recommender or auth isolation tests yet (roadmap 1.4).
+
+---
+
+## Quick start
+
+Verified: Python **3.13**, Node **24** / npm **11**, PostgreSQL **16**, TMDB API key. Details and lockfile rules: [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md).
+
+```bash
+# Postgres
 brew services start postgresql@16
 createdb movie_recommender   # first time only
 
-# Configure environment
-cp .env.example .env
-python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
-# Put the printed value in SECRET_KEY, then set TMDB_API_KEY and DB_* in .env
-# See docs/CONFIGURATION.md for every variable and for Lambda env vars.
-
+# API
+cd backend
+python3.13 -m venv venv      # only if venv/ does not exist
+source venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env         # skip if .env already exists; never overwrite secrets
+# set SECRET_KEY, TMDB_API_KEY, DB_* — see docs/CONFIGURATION.md
 python manage.py migrate
-python manage.py shell -c "exec(open('seed_demo_data.py').read())"
-python manage.py runserver
+python manage.py runserver 127.0.0.1:8000
 ```
 
-Backend: `http://127.0.0.1:8000`
-
-### 2. Frontend (new terminal)
-
 ```bash
+# UI (second terminal)
 cd frontend
-npm install
-npm run dev
+npm ci
+npm run dev -- --host 127.0.0.1 --port 5173
 ```
 
-Frontend: `http://localhost:5173`
+UI: `http://127.0.0.1:5173` · API: `http://127.0.0.1:8000`
 
-By default the frontend calls the local Django API.  
-To point at Lambda instead, create `frontend/.env`:
-
-```bash
-VITE_API_BASE_URL=https://YOUR_LAMBDA_FUNCTION_URL
-```
-
-Configuration details (secrets, DEBUG, hosts, Lambda): [`docs/CONFIGURATION.md`](docs/CONFIGURATION.md).
+`pip install -r requirements.txt` does not uninstall leftover packages in an old venv. Auth is DRF **TokenAuthentication**, not JWT.
 
 ---
 
-## Demo Accounts
+## API (local Django)
 
-| Username | Password |
-|----------|----------|
-| `alice` | `demo1234` |
-| `bob` | `demo1234` |
-| `carol` | `demo1234` |
+Auth header: `Authorization: Token <token>`
 
-Seeded with overlapping ratings so collaborative filtering works out of the box.
+| Method | Path | Auth |
+|--------|------|------|
+| GET | `/api/movies/search?query=` | no |
+| GET | `/api/movies/<tmdb_id>/` | no |
+| POST | `/api/auth/register/` `/login/` `/logout/` | login returns the token |
+| GET | `/api/auth/me/` | yes |
+| GET/POST | `/api/ratings/` | yes (own rows) |
+| GET/DELETE | `/api/ratings/<movie_id>/` | yes |
+| GET | `/api/recommendations/` | yes |
 
-### Suggested walkthrough
-1. Search for a movie (e.g. *Inception*)
-2. Log in as `alice`
-3. Open a movie and rate it
-4. Visit **For You** for recommendations
-5. Open **Profile** to view saved ratings
-
----
-
-## API Reference
-
-### Movies
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/movies/search?query=` | Search movies via TMDB |
-| GET | `/api/movies/<id>/` | Movie details |
-
-### Auth
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/register/` | Create account |
-| POST | `/api/auth/login/` | Log in (returns token) |
-| POST | `/api/auth/logout/` | Invalidate token |
-| GET | `/api/auth/me/` | Current user profile |
-
-### Ratings (requires auth)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/ratings/` | List current user’s ratings |
-| POST | `/api/ratings/` | Create/update a rating |
-| GET | `/api/ratings/<movie_id>/` | Get rating for one movie |
-| DELETE | `/api/ratings/<movie_id>/` | Remove a rating |
-
-### Recommendations (requires auth)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/recommendations/` | Personalized movie recommendations |
-
-**Auth header**
-
-```http
-Authorization: Token <your_token>
-```
-
-**Example rating payload**
+Rating body:
 
 ```json
-{
-  "movie_id": 27205,
-  "title": "Inception",
-  "poster_url": "https://image.tmdb.org/t/p/w500/...",
-  "score": 5
-}
+{ "movie_id": 27205, "title": "Inception", "poster_url": "https://image.tmdb.org/t/p/w500/...", "score": 5 }
 ```
 
 ---
 
-## Project Structure
+## Repository
 
 ```text
-movie-recommender/
-├── backend/
-│   ├── config/              # Django settings, URLs, Lambda handler
-│   ├── movies/              # TMDB search + details
-│   ├── accounts/            # Auth APIs
-│   ├── ratings/             # Rating model + APIs
-│   ├── recommendations/     # Collaborative filtering
-│   ├── seed_demo_data.py    # Demo users + ratings
-│   ├── requirements.txt
-│   └── .env.example
-└── frontend/
-    ├── src/pages/           # App screens
-    ├── src/context/         # Auth state
-    ├── src/components/      # Shared UI
-    └── src/api.js           # API client config
+backend/   Django apps: movies, accounts, ratings, recommendations; Lambda handler
+frontend/  React (Vite) — search, details, auth, For You, profile, watchlist
+docs/      spec, roadmap, progress, config, development, ADRs
 ```
-
----
-
-## Cloud & Roadmap
-
-### Done
-- Serverless packaging and deployment of movie search/details on AWS Lambda
-- Full local stack with Postgres-backed auth, ratings, and recommendations
-
-### Next
-- Host React frontend on Amazon S3 (and optionally CloudFront)
-- Put API Gateway in front of Lambda
-- Persist watchlist in PostgreSQL per user
-- Expand recommendation quality with more rating data / hybrid signals
-
----
-
-## Why this project
-
-This project demonstrates practical full-stack engineering:
-
-- API design and third-party integration (TMDB)
-- Relational data modeling and authentication
-- A real recommendation algorithm, not just UI mock data
-- Frontend product experience (routing, auth state, ratings UX)
-- Cloud deployment experience with AWS Lambda
 
 ---
 

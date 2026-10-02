@@ -135,7 +135,7 @@ function HomePage() {
         <p className="hero-subtitle">
           {hasSearched
             ? 'Refine your search or pick a title from the results below.'
-            : 'Search live TMDB titles, rate what you love, and get recommendations that feel personal.'}
+            : 'Search titles, rate what you like, and get recommendations.'}
         </p>
 
         <form className="search-form" onSubmit={handleSearch}>
@@ -207,19 +207,17 @@ function HomePage() {
 
       {!hasSearched && !loading && (
         <section className="lobby-strip" aria-label="How it works">
-          <p className="lobby-strip-title">Inside the lobby</p>
+          <p className="lobby-strip-title">Browse</p>
           <div className="lobby-marquee">
             <div className="lobby-marquee-track">
-              <span>Live TMDB search</span>
-              <span>Star ratings</span>
-              <span>Collaborative filtering</span>
-              <span>Personal watchlist</span>
-              <span>AWS Lambda API</span>
-              <span>Live TMDB search</span>
-              <span>Star ratings</span>
-              <span>Collaborative filtering</span>
-              <span>Personal watchlist</span>
-              <span>AWS Lambda API</span>
+              <span>Search</span>
+              <span>Ratings</span>
+              <span>Recommendations</span>
+              <span>Watchlist</span>
+              <span>Search</span>
+              <span>Ratings</span>
+              <span>Recommendations</span>
+              <span>Watchlist</span>
             </div>
           </div>
         </section>

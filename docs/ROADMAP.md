@@ -27,10 +27,11 @@ Do not add Redis or workers in this phase.
 | ID | Task | Status | Acceptance criteria |
 |----|------|--------|---------------------|
 | 1.1 | Document and validate configuration; ignore secrets and generated files | done | `.env.example` lists required vars; committed secrets audit (SECRET_KEY/DEBUG) documented or moved to env without breaking local start; gitignore covers `.env`, venv, node_modules, build artifacts, local DB files; README startup still accurate |
-| 1.2 | Establish dependency locking and repeatable local startup | not_started | Backend pins remain complete and installable from `requirements.txt` (or a chosen lock workflow); frontend lockfile used; documented commands start API and UI on a clean machine checklist |
+| 1.2 | Establish dependency locking and repeatable local startup | done | Backend pins remain complete and installable from `requirements.txt` (or a chosen lock workflow); frontend lockfile used; documented commands start API and UI on a clean machine checklist |
 | 1.3 | Add Docker Compose **only if** it clearly improves local Postgres/app startup | not_started | Optional: `docker compose` brings up Postgres (and later documented services) with a documented override for native Homebrew; app still runnable without Compose if Compose is skipped |
 | 1.4 | Focused regression checks: auth, rating ownership, current recommender | not_started | Tests prove: unauthenticated ratings/recs rejected; user A cannot read/write user B’s ratings; score bounds; CF returns documented `method` keys on a tiny fixture; movies tests still pass |
 | 1.5 | Add CI for the established checks | not_started | GitHub Actions (or existing CI) runs backend tests on PR; Postgres service or documented test settings; no secrets in logs |
+| 1.6 | Triage and remediate frontend npm audit (no `--force`) | not_started | Document each remaining advisory (direct vs transitive, prod vs dev); apply non-breaking upgrades if they stay inside existing ranges; confirm `npm ci` + `npm run build`; do not treat audit count as proven exploitability |
 
 ---
 
@@ -192,10 +193,10 @@ Keep experimental until results justify serving.
 
 ---
 
-## Follow-ups discovered in Phase 0 (not blocking 1.1)
+## Follow-ups
 
-- Unused `djangorestframework_simplejwt` / `PyJWT` unless JWT is chosen later.
-- Unused `User` import in `recommendations/views.py`.
 - `watchlist` installed but has no URLs or models.
 - Dense CF on all ratings will not scale; acceptable until Phase 4 eval path exists.
-- Hardcoded Lambda hostname in `ALLOWED_HOSTS`.
+- Lambda Function URL hostname must be supplied via `ALLOWED_HOSTS` (no longer hardcoded).
+- **Python 3.12:** Django 6.0 supports it; CineRank has not run the lock or tests on 3.12. Verify in an isolated venv when a 3.12 interpreter is already available (do not install a system Python just for this).
+- **npm audit (from 1.2 `npm ci`):** 11 findings (1 low, 3 moderate, 7 high). `npm audit fix` was suggested; **`npm audit fix --force` was not used.** Locked **vite 8.0.7** is a **direct devDependency** (`vite` `^8.0.4` in `package.json`). Public advisories for Vite 8.0.0–8.0.15 include Windows `server.fs.deny` / path issues, patched in **8.0.16+** (still within `^8.0.4`, not a major bump). Production dependencies are `react`, `react-dom`, `react-router-dom`; the Vite issues apply to the **dev server / build toolchain**, not the static production bundle in the same way. Task **1.6** should rerun `npm audit --json` and list every remaining package. An audit count is not proof of a reachable exploit (especially without `--host` on Windows).

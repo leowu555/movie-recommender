@@ -1,5 +1,4 @@
 import numpy as np
-from django.contrib.auth.models import User
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -11,13 +10,6 @@ from ratings.models import Rating
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def recommend_movies(request):
-    """
-    User-based collaborative filtering:
-    1) Build a user-movie rating matrix
-    2) Find similar users with cosine similarity
-    3) Recommend highly rated movies from similar users
-    Falls back to the current user's top-rated titles if data is sparse.
-    """
     all_ratings = list(
         Rating.objects.select_related('user').values('user_id', 'movie_id', 'title', 'poster_url', 'score')
     )
@@ -64,7 +56,6 @@ def recommend_movies(request):
         Rating.objects.filter(user=request.user).values_list('movie_id', flat=True)
     )
 
-    # Need at least 2 users for collaborative filtering
     if len(user_ids) < 2:
         fallback = (
             Rating.objects.filter(user=request.user)
@@ -76,7 +67,7 @@ def recommend_movies(request):
                 'title': r.title,
                 'poster_url': r.poster_url,
                 'score': r.score,
-                'reason': 'Based on your highest ratings (need more users for CF)',
+                'reason': 'Based on your highest ratings',
             }
             for r in fallback
         ]
@@ -84,9 +75,7 @@ def recommend_movies(request):
 
     similarities = cosine_similarity(matrix)
     similar_scores = similarities[current_idx]
-    similar_scores[current_idx] = -1  # ignore self
-
-    # Top similar users
+    similar_scores[current_idx] = -1
     top_similar = np.argsort(similar_scores)[::-1][:5]
     recommendations = {}
 

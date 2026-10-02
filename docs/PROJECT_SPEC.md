@@ -41,7 +41,7 @@ There is no Redis, Celery, Docker Compose, CI, pgvector, MLflow, or offline eval
 | App | Reality |
 |-----|---------|
 | `movies` | TMDB proxy: search + details. **No `Movie` model.** IDs are TMDB integers. |
-| `accounts` | Register/login/logout/me using Django `User` + DRF `TokenAuthentication`. Unused `simplejwt` in `requirements.txt`. |
+| `accounts` | Register/login/logout/me using Django `User` + DRF `TokenAuthentication`. |
 | `ratings` | `Rating(user, movie_id, title, poster_url, score)` with `unique_together` on `(user, movie_id)`. Score 1–5 enforced in serializer, not a DB check. |
 | `recommendations` | In-request user-based CF in `recommendations/views.py`. Empty models. |
 | `watchlist` | Django app scaffold only. **Not wired in `config/urls.py`.** UI uses `localStorage`. |
@@ -79,7 +79,7 @@ React 19 + Vite 8 + React Router 7 (JavaScript). Pages: Home (search), Movie det
 - `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`, and CORS origins are read from the environment (`config/environ.py`). See `docs/CONFIGURATION.md`.
 - `.env` is gitignored; `backend/.env.example` lists required and optional variables with placeholders.
 - A previously hardcoded Django `SECRET_KEY` lived in `settings.py` and remains in git history; generate a new key for any shared or deployed environment.
-- No Docker, no GitHub Actions, no pip lock beyond pinned `requirements.txt`, frontend has `package-lock.json`.
+- No Docker, no GitHub Actions. Backend lock: `requirements.in` + pip-compile `requirements.txt` (Python **3.13** verified). Frontend: `package-lock.json` (`npm ci` on Node **24.14.0** / npm **11.9.0**).
 
 ### Existing checks
 

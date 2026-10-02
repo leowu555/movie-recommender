@@ -2,43 +2,35 @@
 
 ## Current phase
 
-**Phase 1.** Task **1.1 complete** (environment-based configuration). Next: **1.2**.
+**Phase 1.** Task **1.2** is ready to commit after the 1.2 review corrections. Next implementation task remains **1.3** (skip **1.6** until you choose to do audit remediation).
 
 ## Completed
 
 - **0.1–0.3** Repository audit and CineRank docs.
-- **1.1** Environment-based `SECRET_KEY` / `DEBUG` / hosts / CORS; `.env.example` and gitignore updates; parser tests; configuration docs.
+- **1.1** Environment-based configuration.
+- **1.2** pip-compile lock + documented startup (corrected: `pip install -r` does not remove extras; Python 3.12 unverified; compile script pins pip-tools).
 
 ## What is actually working (do not overclaim)
 
-- TMDB search and details via Django (slash and no-slash routes).
-- DRF token auth; ratings stored in PostgreSQL, scoped to `request.user`.
-- In-request user-based cosine CF with sparse-data fallbacks.
-- React UI for search, details, auth, profile, For You, localStorage watchlist.
-- Lambda Function URL packaging for the Django ASGI movie API (historical deploy). After 1.1, Lambda **must** set `SECRET_KEY` and `ALLOWED_HOSTS` (and typically `DEBUG=false`, `TMDB_API_KEY`) in the function environment; that update was not deployed in this task.
-- Movie API tests with mocked TMDB; configuration parser tests.
+Unchanged product behavior. Auth is still DRF token auth. Existing `backend/venv` was **not** rewritten and was **not** synchronized.
 
-## Checks run in 1.1
+## Checks run in 1.2 (original)
 
-Ran (backend venv, temporary non-secret `SECRET_KEY` in the process environment; no `.env` file present in this workspace):
+Throwaway environments (not `backend/venv` / not `frontend/node_modules`):
 
-- `python manage.py test config movies` — 20 tests OK (Postgres test database created and destroyed).
-- `python manage.py check` — no issues.
-- `from config.lambda_handler import handler` — imported `Mangum` (no deploy, no Function URL call).
-- Direct parser calls for missing/blank `SECRET_KEY` and invalid `DEBUG` — `ImproperlyConfigured`.
+- pip-compile with Python **3.13.12**, pip-tools **7.6.1**.
+- Temp venv `pip install -r requirements.txt`, `pip check`, config+movies tests (20 OK), `manage.py check`.
+- Isolated `npm ci` + `npm run build` on Node **24.14.0**, npm **11.9.0**.
 
-Did **not** call live TMDB, upload Lambda, or modify application data. Did **not** read or write a local `.env`.
+## Checks run in the 1.2 review
 
-Inspection: `backend/.env.example` is tracked; `.env` paths are gitignored; `settings.py` no longer contains a hardcoded secret or Lambda hostname. The previous `SECRET_KEY` value remains in git history.
+- Compared regenerated `requirements.txt` to the previously tracked freeze: **no remaining package version increases.** Removed from the lock: `djangorestframework-simplejwt==5.5.1`, `PyJWT==2.13.0`. `typing_extensions` renamed to `typing-extensions` (same 4.15.0). Direct pins in `requirements.in` match the old freeze.
+- Documentation and `compile-requirements.sh` edits only. **Did not** re-run the full test suite, **did not** run `pip-sync`, **did not** capture a new `npm audit --json` in this review session (shell execution was unavailable). Audit notes reuse the 1.2 `npm ci` summary plus public Vite 8.0.7 advisory information.
 
 ## Blockers
 
-Local run and Django tests that load settings require a nonempty `SECRET_KEY` in `backend/.env` or the process environment. Existing local `.env` files were not modified.
-
-Lambda will fail to boot until its environment includes `SECRET_KEY` and an `ALLOWED_HOSTS` value that includes the Function URL hostname.
-
-The old development `SECRET_KEY` remains in git history from earlier commits; rotate keys for any shared remote.
+None for committing 1.2 docs+lock. Python 3.12 and Linux/Lambda remain unverified. npm audit package-by-package JSON is deferred to **1.6**.
 
 ## Exact next task
 
-**1.2 — Establish dependency locking and repeatable local startup.**
+**1.3 — Add Docker Compose only if it clearly improves local Postgres/app startup.**

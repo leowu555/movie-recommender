@@ -1,8 +1,4 @@
-"""
-Seed demo users + ratings so collaborative filtering has enough data for demos.
-Run: python manage.py shell < seed_demo_data.py
-or: python manage.py shell -c "exec(open('seed_demo_data.py').read())"
-"""
+"""Seed alice, bob, and carol with overlapping ratings for local demos."""
 from django.contrib.auth.models import User
 from ratings.models import Rating
 
