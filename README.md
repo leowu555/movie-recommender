@@ -104,7 +104,9 @@ createdb movie_recommender   # first time only
 
 # Configure environment
 cp .env.example .env
-# Set TMDB_API_KEY and DB_* values in .env
+python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+# Put the printed value in SECRET_KEY, then set TMDB_API_KEY and DB_* in .env
+# See docs/CONFIGURATION.md for every variable and for Lambda env vars.
 
 python manage.py migrate
 python manage.py shell -c "exec(open('seed_demo_data.py').read())"
@@ -130,7 +132,7 @@ To point at Lambda instead, create `frontend/.env`:
 VITE_API_BASE_URL=https://YOUR_LAMBDA_FUNCTION_URL
 ```
 
-> Auth, ratings, and recommendations require the local Django + PostgreSQL stack.
+Configuration details (secrets, DEBUG, hosts, Lambda): [`docs/CONFIGURATION.md`](docs/CONFIGURATION.md).
 
 ---
 

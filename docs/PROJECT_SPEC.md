@@ -76,14 +76,14 @@ React 19 + Vite 8 + React Router 7 (JavaScript). Pages: Home (search), Movie det
 
 ### Configuration and security debt
 
-- `SECRET_KEY` and `DEBUG = True` are hardcoded in `config/settings.py`.
-- `.env` is gitignored; `backend/.env.example` documents `TMDB_API_KEY` and `DB_*` only.
-- Root `.gitignore` covers `.env`, `venv/`, `node_modules/`, `dist/`, `build/` (Lambda zip staging), `db.sqlite3`.
+- `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`, and CORS origins are read from the environment (`config/environ.py`). See `docs/CONFIGURATION.md`.
+- `.env` is gitignored; `backend/.env.example` lists required and optional variables with placeholders.
+- A previously hardcoded Django `SECRET_KEY` lived in `settings.py` and remains in git history; generate a new key for any shared or deployed environment.
 - No Docker, no GitHub Actions, no pip lock beyond pinned `requirements.txt`, frontend has `package-lock.json`.
 
 ### Existing checks
 
-- **Implemented:** `backend/movies/tests.py` — search requires `query`; mocked TMDB search/details payloads; 404 from TMDB.
+- **Implemented:** `backend/movies/tests.py` — search requires `query`; mocked TMDB search/details payloads; 404 from TMDB. `backend/config/tests.py` — SECRET_KEY / DEBUG / host parsing and dotenv precedence.
 - **Empty stubs:** `accounts/tests.py`, `ratings/tests.py`, `recommendations/tests.py`, `watchlist/tests.py`.
 - **None:** CI, frontend tests, browser tests, recommender unit tests, auth/rating isolation tests.
 - Django `TestCase` uses the project’s PostgreSQL engine; tests assume a reachable Postgres unless settings are later split for CI.
