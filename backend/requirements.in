@@ -4,6 +4,10 @@
 #
 # Keep this list to packages the application imports or needs at runtime.
 # Transitive packages belong in the compiled requirements.txt.
+#
+# Lock regeneration (throwaway venv, pip-tools==7.6.1, Python 3.12+):
+#   PYTHON=/path/to/python3.13 ./compile-requirements.sh
+# The committed requirements.txt was compiled with Python 3.13.
 
 Django==6.0.3
 djangorestframework==3.17.0

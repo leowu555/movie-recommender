@@ -2,37 +2,34 @@
 
 ## Current phase
 
-**Phase 1.** Task **1.2 complete** (dependency locking and repeatable startup). Next: **1.3**.
+**Phase 1.** Task **1.2** is ready to commit after the 1.2 review corrections. Next implementation task remains **1.3** (skip **1.6** until you choose to do audit remediation).
 
 ## Completed
 
 - **0.1–0.3** Repository audit and CineRank docs.
 - **1.1** Environment-based configuration.
-- **1.2** `requirements.in` + pip-compile lock; unused simplejwt removed from the lock; frontend `npm ci` documented; `docs/DEVELOPMENT.md`.
+- **1.2** pip-compile lock + documented startup (corrected: `pip install -r` does not remove extras; Python 3.12 unverified; compile script pins pip-tools).
 
 ## What is actually working (do not overclaim)
 
-Unchanged product behavior. Auth is still DRF token auth. Existing `backend/venv` was **not** rewritten; it may still contain old extra packages until you `pip install -r requirements.txt` (or recreate the venv).
+Unchanged product behavior. Auth is still DRF token auth. Existing `backend/venv` was **not** rewritten and was **not** synchronized.
 
-## Checks run in 1.2
+## Checks run in 1.2 (original)
 
-Ran (throwaway environments; existing `backend/venv` and `frontend/node_modules` not used for clean-install checks):
+Throwaway environments (not `backend/venv` / not `frontend/node_modules`):
 
-- `pip-compile` of `requirements.in` with Python 3.13 in a temp venv (pip-tools 7.6.1) — wrote `backend/requirements.txt`.
-- Temp venv `pip install -r requirements.txt` — success (macOS ARM wheels).
-- `pip check` — no broken requirements.
-- `rest_framework_simplejwt` / `jwt` not importable in the temp venv.
-- `python manage.py test config movies` in that venv — 20 tests OK.
-- `python manage.py check` — no issues.
-- Isolated frontend copy: `npm ci` then `npm run build` — build succeeded (Vite 8.0.7). `npm ls` matched the lock (React 19.2.5 via the existing caret range). `npm ci` printed an audit summary (11 vulnerabilities); not addressed in this task.
+- pip-compile with Python **3.13.12**, pip-tools **7.6.1**.
+- Temp venv `pip install -r requirements.txt`, `pip check`, config+movies tests (20 OK), `manage.py check`.
+- Isolated `npm ci` + `npm run build` on Node **24.14.0**, npm **11.9.0**.
 
-Did **not** call live TMDB, deploy Lambda, rebuild `lambda.zip`, or modify application data. Did **not** recreate `backend/venv`.
+## Checks run in the 1.2 review
+
+- Compared regenerated `requirements.txt` to the previously tracked freeze: **no remaining package version increases.** Removed from the lock: `djangorestframework-simplejwt==5.5.1`, `PyJWT==2.13.0`. `typing_extensions` renamed to `typing-extensions` (same 4.15.0). Direct pins in `requirements.in` match the old freeze.
+- Documentation and `compile-requirements.sh` edits only. **Did not** re-run the full test suite, **did not** run `pip-sync`, **did not** capture a new `npm audit --json` in this review session (shell execution was unavailable). Audit notes reuse the 1.2 `npm ci` summary plus public Vite 8.0.7 advisory information.
 
 ## Blockers
 
-None for marking 1.2 complete on macOS + Python 3.13.
-
-Linux/Lambda wheel reproducibility is **not** verified (documented limitation).
+None for committing 1.2 docs+lock. Python 3.12 and Linux/Lambda remain unverified. npm audit package-by-package JSON is deferred to **1.6**.
 
 ## Exact next task
 

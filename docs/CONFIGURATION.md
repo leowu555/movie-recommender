@@ -41,7 +41,8 @@ See [`DEVELOPMENT.md`](DEVELOPMENT.md) for locked installs, PostgreSQL, migratio
 
 1. PostgreSQL 16 running; database created (`createdb` only when needed).
 2. `backend/.env` with `SECRET_KEY`, `TMDB_API_KEY`, `DB_*`; `DEBUG=true` is typical locally. Copy `.env.example` only if `.env` does not exist.
-3. `cd backend && source venv/bin/activate && pip install -r requirements.txt && python manage.py migrate && python manage.py runserver`
+3. `cd backend && source venv/bin/activate && pip install -r requirements.txt && python manage.py migrate && python manage.py runserver`  
+   (`pip install -r` does not uninstall packages omitted from the lock. See [`DEVELOPMENT.md`](DEVELOPMENT.md).)
 4. `cd frontend && npm ci && npm run dev`
 
 Do not treat `seed_demo_data.py` as part of ordinary startup.

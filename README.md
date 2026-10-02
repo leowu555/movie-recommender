@@ -87,16 +87,18 @@ Built with **Django**, **React**, **PostgreSQL**, **scikit-learn**, and the **TM
 Full checklist (runtimes, locked installs, when to seed): [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md).
 
 ### Prerequisites
-- Python 3.12 or 3.13 (Django 6.0; lock compiled with 3.13)
-- Node.js 20+ and npm 10+
+- Python **3.13** for the locked install that was verified (Django 6.0 also lists 3.12; that combination was **not** tested here)
+- Node.js **^20.19 or ≥22.12** (Vite 8.0.7); **24.14.0** / npm **11.9.0** used for `npm ci` + build
 - PostgreSQL 16
 - TMDB API key
 
 ### 1. Backend
 
+If `backend/venv` already exists, activate it and install into that env (extras such as old JWT packages are **not** removed by this command). To start clean, use a **new directory** (`venv-3.13`), not `python3.13 -m venv venv` over an existing tree.
+
 ```bash
 cd backend
-python3.13 -m venv venv
+python3.13 -m venv venv          # first time only, empty directory
 source venv/bin/activate
 python -m pip install --upgrade pip
 pip install -r requirements.txt

@@ -79,7 +79,7 @@ React 19 + Vite 8 + React Router 7 (JavaScript). Pages: Home (search), Movie det
 - `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`, and CORS origins are read from the environment (`config/environ.py`). See `docs/CONFIGURATION.md`.
 - `.env` is gitignored; `backend/.env.example` lists required and optional variables with placeholders.
 - A previously hardcoded Django `SECRET_KEY` lived in `settings.py` and remains in git history; generate a new key for any shared or deployed environment.
-- No Docker, no GitHub Actions. Backend lock: `requirements.in` + pip-compile `requirements.txt`. Frontend: `package-lock.json`.
+- No Docker, no GitHub Actions. Backend lock: `requirements.in` + pip-compile `requirements.txt` (Python **3.13** verified). Frontend: `package-lock.json` (`npm ci` on Node **24.14.0** / npm **11.9.0**).
 
 ### Existing checks
 
