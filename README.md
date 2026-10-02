@@ -1,6 +1,8 @@
-# Movie Recommender
+# Movie Recommender (CineRank)
 
 A full-stack movie discovery and recommendation platform that lets users search live movie data, rate films, and receive personalized recommendations.
+
+Long-term evolution (CineRank) is specified in [`docs/PROJECT_SPEC.md`](docs/PROJECT_SPEC.md). Task status lives in [`docs/ROADMAP.md`](docs/ROADMAP.md) and [`docs/PROGRESS.md`](docs/PROGRESS.md). Treat those docs as the source of truth for implemented vs planned work.
 
 Built with **Django**, **React**, **PostgreSQL**, **scikit-learn**, and the **TMDB API**, with a serverless movie API deployed on **AWS Lambda**.
 
